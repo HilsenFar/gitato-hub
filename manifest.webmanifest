@@ -1,0 +1,15 @@
+{
+  "name": "GITATO — projekter & eksperimenter",
+  "short_name": "GITATO",
+  "description": "Projekter & eksperimenter af HilsenFar — bl.a. Jason's Sprunkiverse.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#05060d",
+  "theme_color": "#05060d",
+  "icons": [
+    { "src": "assets/icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "assets/icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "assets/icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
