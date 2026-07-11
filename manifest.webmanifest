@@ -1,7 +1,7 @@
 {
-  "name": "GITATO — projekter & eksperimenter",
+  "name": "GITATO — projects & experiments",
   "short_name": "GITATO",
-  "description": "Projekter & eksperimenter af HilsenFar — bl.a. Jason's Sprunkiverse.",
+  "description": "Projects & experiments by HilsenFar — games, music tools and more.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

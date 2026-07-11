@@ -1,6 +1,6 @@
 // GITATO hub service worker — tiny site, network first with cache fallback.
 // Bump VERSION when the site changes.
-const VERSION = 'gitato-v3';
+const VERSION = 'gitato-v4';
 
 const SHELL = [
   './',
