@@ -1,6 +1,6 @@
 // GITATO hub service worker — tiny site, network first with cache fallback.
 // Bump VERSION when the site changes.
-const VERSION = 'gitato-v4';
+const VERSION = 'gitato-v5';
 
 const SHELL = [
   './',
@@ -8,6 +8,10 @@ const SHELL = [
   './manifest.webmanifest',
   './assets/sprunkiverse-cover.png',
   './assets/gitato-game-cover.png',
+  './assets/beatsurfer-cover.png',
+  './assets/frequencypilot-cover.png',
+  './assets/addson-cover.png',
+  './assets/mediestudio-cover.png',
   './assets/icons/icon-192.png',
   './assets/icons/icon-512.png',
 ];
