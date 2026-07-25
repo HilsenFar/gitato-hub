@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>404 — GITATO</title>
+<meta name="robots" content="noindex" />
+<meta name="theme-color" content="#0A0C10" />
+<link rel="icon" type="image/png" href="/assets/icons/icon-192.png" />
+<link rel="apple-touch-icon" href="/assets/icons/icon-180.png" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<!-- GITATO Design System v2 — must load before this page's own styles.
+     Absolute path: a 404 is served for /any/depth/at/all, so a relative
+     href would resolve against the missing URL and 404 as well. -->
+<link rel="stylesheet" href="/ds.css" />
+<style>
+  /* Until now gitato.net served GitHub Pages' own 404 — a light-grey Helvetica
+     page with no relation to anything else on the domain. Pages picks this file
+     up automatically from the repo root. */
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { background: var(--gt-sub-0); }
+  body {
+    min-height: 100vh;
+    display: grid;
+    place-items: center;
+    padding: var(--gt-s-6) var(--gt-s-5);
+    background:
+      radial-gradient(1100px 640px at 68% -12%, rgba(124, 108, 255, .14), transparent 62%),
+      radial-gradient(820px 560px at 8% 112%, rgba(255, 43, 78, .07), transparent 60%),
+      var(--gt-sub-0);
+    color: var(--gt-ink-1);
+    font-family: var(--gt-font-body);
+  }
+
+  .grain {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background-image: var(--gt-grain); background-size: 140px 140px;
+    opacity: var(--gt-grain-opacity); mix-blend-mode: overlay;
+  }
+
+  main { position: relative; z-index: 2; width: 100%; max-width: 660px; }
+
+  .rail { border-left: 3px solid var(--gt-sig); padding-left: var(--gt-s-5); }
+
+  .eyebrow {
+    display: flex; align-items: center; gap: var(--gt-s-2);
+    font-family: var(--gt-font-ui); font-size: var(--gt-t-xs); font-weight: 600;
+    letter-spacing: var(--gt-track-tag); text-transform: uppercase;
+    color: var(--gt-sig-ink); margin-bottom: var(--gt-s-3);
+  }
+  .eyebrow::before {
+    content: ""; width: 7px; height: 7px; border-radius: 50%;
+    background: var(--gt-red); box-shadow: 0 0 10px var(--gt-red);
+  }
+
+  .code {
+    font-family: var(--gt-font-ui); font-weight: 700;
+    font-size: clamp(76px, 17vw, 168px); line-height: .88;
+    letter-spacing: var(--gt-track-hero);
+    background: linear-gradient(178deg, #FFFFFF 6%, #C8CEDC 46%, #6C7688 100%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+
+  h1 {
+    font-family: var(--gt-font-ui); font-size: var(--gt-t-xl); font-weight: 700;
+    letter-spacing: var(--gt-track-head); text-transform: uppercase;
+    margin-top: var(--gt-s-3);
+  }
+
+  p {
+    margin-top: var(--gt-s-3); font-size: var(--gt-t-base);
+    line-height: var(--gt-lh-body); color: var(--gt-ink-2); max-width: 46ch;
+  }
+
+  .path {
+    display: inline-block; margin-top: var(--gt-s-3);
+    font-family: var(--gt-font-mono); font-size: var(--gt-t-xs);
+    letter-spacing: .06em; color: var(--gt-ink-3);
+    background: var(--gt-void); border: 1px solid var(--gt-edge-hair);
+    border-radius: var(--gt-r-1); padding: 6px 10px;
+    max-width: 100%; overflow-wrap: anywhere;
+  }
+
+  .actions { display: flex; gap: var(--gt-s-3); flex-wrap: wrap; margin-top: var(--gt-s-5); }
+
+  .links {
+    margin-top: var(--gt-s-6); padding-top: var(--gt-s-4);
+    border-top: 1px solid var(--gt-edge-hair);
+    display: flex; gap: var(--gt-s-2) var(--gt-s-4); flex-wrap: wrap;
+  }
+  .links a {
+    font-family: var(--gt-font-ui); font-size: var(--gt-t-xs); font-weight: 600;
+    letter-spacing: var(--gt-track-label); text-transform: uppercase;
+    color: var(--gt-ink-3); text-decoration: none;
+    border-bottom: 1px solid transparent; padding-bottom: 2px;
+    transition: color var(--gt-d-2) var(--gt-ease-soft),
+                border-color var(--gt-d-2) var(--gt-ease-soft);
+  }
+  .links a:hover { color: var(--gt-sig-ink); border-bottom-color: var(--gt-sig); }
+  .links a:focus-visible { outline: none; box-shadow: var(--gt-focus-ring); border-radius: 2px; }
+
+  .hz { margin-top: var(--gt-s-6); }
+</style>
+</head>
+<body data-gt="hub">
+<div class="grain"></div>
+
+<main>
+  <div class="rail">
+    <p class="eyebrow">Signal lost</p>
+    <div class="code">404</div>
+    <h1>Nothing at this address</h1>
+    <p>The page you asked for isn't here. It may have moved, or the link may have been mistyped.</p>
+    <code class="path" id="path">/</code>
+
+    <div class="actions">
+      <a class="gt-plate" href="/">
+        <svg class="gi" aria-hidden="true"><use href="/icons.svg#gi-arrow-left"></use></svg>
+        Back to gitato.net
+      </a>
+      <button class="gt-btn gt-btn--ghost" type="button" id="back">
+        <svg class="gi" aria-hidden="true"><use href="/icons.svg#gi-undo"></use></svg>
+        Previous page
+      </button>
+    </div>
+
+    <nav class="links" aria-label="Projects">
+      <a href="https://game.gitato.net/rts/">Gitato Command</a>
+      <a href="https://game.gitato.net">Gitato</a>
+      <a href="https://spil.gitato.net">Sprunkiverse</a>
+      <a href="https://beatsurfer.gitato.net">BeatSurfer</a>
+      <a href="https://frequencypilot.gitato.net">Frequency-Pilot</a>
+      <a href="https://addson.gitato.net">AddSon</a>
+      <a href="https://mediestudio.gitato.net">MedieStudio</a>
+    </nav>
+  </div>
+
+  <div class="hz gt-hazard gt-hazard--inert"></div>
+</main>
+
+<script>
+  // Show what was actually asked for — useful when a shared link is wrong.
+  document.getElementById('path').textContent =
+    location.pathname + location.search || '/';
+
+  var back = document.getElementById('back');
+  // Only offer "previous page" when there is one to go back to.
+  if (history.length > 1) {
+    back.addEventListener('click', function () { history.back(); });
+  } else {
+    back.remove();
+  }
+</script>
+</body>
+</html>

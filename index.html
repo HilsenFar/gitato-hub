@@ -7,7 +7,7 @@
 <meta property="og:title" content="GITATO" />
 <meta property="og:description" content="Projects & experiments by HilsenFar" />
 <meta property="og:image" content="https://gitato.net/assets/sprunkiverse-cover.png" />
-<meta name="theme-color" content="#05060d" />
+<meta name="theme-color" content="#0A0C10" />
 <link rel="manifest" href="manifest.webmanifest" />
 <link rel="icon" type="image/png" href="assets/icons/icon-192.png" />
 <link rel="apple-touch-icon" href="assets/icons/icon-180.png" />
@@ -15,111 +15,418 @@
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black" />
 <meta name="apple-mobile-web-app-title" content="GITATO" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<!-- GITATO Design System v2 — must load before this page's own styles -->
+<link rel="stylesheet" href="ds.css" />
 <style>
+  /* ═══════════════════════════════════════════════════════════════════════
+     HUB — surface layer on top of ds.css.
+     Everything shared (substrate, ink, edges, radii, motion, type, focus)
+     comes from ds.css. Only what is genuinely unique to the portal lives here.
+     ═══════════════════════════════════════════════════════════════════════ */
   :root {
-    --ink: #eef0ff;
-    --dim: #8b90b3;
-    --panel: rgba(12, 14, 28, 0.7);
-    --line: rgba(140, 150, 255, 0.16);
-    --glow: #7c6cff;
-    --accent: #ff4d6d;
-    --gold: #ffd76e;
+    /* Alpha washes of --gt-violet / --gt-red. ds.css carries no channel tokens,
+       so these two are the one thing that cannot be written as a token. */
+    --hub-wash-1: rgba(124, 108, 255, .14);
+    --hub-wash-2: rgba(255,  43,  78, .07);
+    --hub-card-min: 300px;
   }
+
+  /* ds.css declares --gt-bloom-* on :root as `… var(--gt-sig)`. A custom
+     property's var() references are substituted where the property is DECLARED,
+     so those three tokens are frozen with :root's --gt-sig (cyan) and then
+     inherit that value everywhere — the theme on <body data-gt="hub"> comes too
+     late to affect them. Measured: every bloom on this page rendered #19E0FF.
+     Re-declaring them here, where --gt-sig is already violet, makes them
+     resolve against the hub's own signal. */
+  body {
+    --gt-bloom-sm: 0 0 14px -4px var(--gt-sig);
+    --gt-bloom:    0 0 22px -4px var(--gt-sig), 0 0 52px -18px var(--gt-sig);
+    --gt-bloom-lg: 0 0 30px -4px var(--gt-sig), 0 0 90px -22px var(--gt-sig);
+  }
+
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  html, body {
+
+  html { background: var(--gt-sub-0); }
+  body {
     min-height: 100%;
     background:
-      radial-gradient(1200px 700px at 70% -10%, rgba(124, 108, 255, 0.16), transparent 60%),
-      radial-gradient(900px 600px at 10% 110%, rgba(255, 77, 109, 0.10), transparent 60%),
-      #05060d;
-    color: var(--ink);
-    font-family: "Segoe UI", system-ui, sans-serif;
+      radial-gradient(1200px 700px at 72% -14%, var(--hub-wash-1), transparent 62%),
+      radial-gradient(900px 620px at 6% 108%, var(--hub-wash-2), transparent 58%),
+      var(--gt-sub-0);
+    background-attachment: fixed;
+    color: var(--gt-ink-2);
+    font-family: var(--gt-font-body);
+    font-size: var(--gt-t-base);
+    line-height: var(--gt-lh-body);
+    -webkit-font-smoothing: antialiased;
   }
-  .wrap { max-width: 1060px; margin: 0 auto; padding: 72px 24px 60px; }
 
-  h1 {
-    font-size: clamp(52px, 10vw, 108px);
-    font-weight: 900;
-    letter-spacing: 0.08em;
-    line-height: 0.95;
-    background: linear-gradient(180deg, #ffffff 15%, #a9b0ff 55%, #6e5cff 100%);
+  .wrap {
+    position: relative;
+    z-index: 2;                     /* above .gt-vignette (0) and .gt-grain (1) */
+    max-width: var(--gt-wrap);
+    margin: 0 auto;
+    padding: 0 var(--gt-s-5) var(--gt-s-8);
+  }
+
+  /* ── Hero ─────────────────────────────────────────────────────────────────
+     The wordmark is machined steel, not neon: a top-lit fill and a cut shadow.
+     The only emission in the hero is the vertical rule on the left edge —
+     a lit face, per the model, rather than a glow smeared under the type. */
+  .hero {
+    position: relative;
+    padding: clamp(52px, 8.5vw, 100px) 0 clamp(34px, 5vw, 56px) var(--gt-s-5);
+  }
+  .hero::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: clamp(52px, 8.5vw, 100px);
+    bottom: clamp(34px, 5vw, 56px);
+    width: 3px;
+    background: linear-gradient(180deg, var(--gt-sig) 0%, var(--gt-sig-dk) 55%, transparent 100%);
+    box-shadow: var(--gt-bloom-sm);
+  }
+
+  .hero__eyebrow {
+    display: flex;
+    align-items: center;
+    gap: var(--gt-s-2);
+    font-family: var(--gt-font-ui);
+    font-size: var(--gt-t-xs);
+    font-weight: 600;
+    letter-spacing: var(--gt-track-tag);
+    text-transform: uppercase;
+    color: var(--gt-ink-3);
+  }
+  .hero__eyebrow .gi { color: var(--gt-sig); }
+  .hero__hair {
+    flex: 1 1 auto;
+    max-width: 240px;
+    height: 1px;
+    background: linear-gradient(90deg, var(--gt-edge-hair), transparent);
+  }
+
+  .hero__logo {
+    margin-top: var(--gt-s-4);
+    font-size: var(--gt-t-hero);
+    background: linear-gradient(180deg,
+      #FFFFFF 0%,
+      var(--gt-ink-1) 32%,
+      #8A94A6 74%,
+      #5C6575 100%);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
-    filter: drop-shadow(0 0 30px rgba(124, 108, 255, 0.45));
+    filter: drop-shadow(0 2px 0 rgba(0, 0, 0, .7));
   }
-  .tagline {
-    margin-top: 14px;
-    color: var(--dim);
-    letter-spacing: 0.32em;
-    font-size: 12px;
-    text-transform: uppercase;
+  .hero__tagline { margin-top: var(--gt-s-3); }
+
+  .hero__stats {
+    display: flex;
+    flex-wrap: wrap;
+    margin-top: var(--gt-s-6);
+    border-top: 1px solid var(--gt-edge-hair);
+  }
+  .hero__stat {
+    display: flex;
+    flex-direction: column-reverse;   /* value above label, dt still first in DOM */
+    gap: 2px;
+    padding: var(--gt-s-3) var(--gt-s-6) var(--gt-s-3) 0;
+  }
+  .hero__stat + .hero__stat {
+    padding-left: var(--gt-s-6);
+    border-left: 1px solid var(--gt-edge-hair);
+  }
+  .hero__stat dd {
+    font-family: var(--gt-font-ui);
+    font-size: var(--gt-t-xl);
+    font-weight: 700;
+    line-height: 1;
+    color: var(--gt-ink-1);
   }
 
+  /* ── Section head ─────────────────────────────────────────────────────── */
+  .section-head {
+    display: flex;
+    align-items: center;
+    gap: var(--gt-s-4);
+    margin-top: clamp(28px, 4vw, 44px);
+  }
+  .section-head h2 { color: var(--gt-ink-1); white-space: nowrap; }
+  .section-head__rule { flex: 1 1 auto; height: 1px; background: var(--gt-edge-hair); }
+  .section-head__hz { width: 88px; flex: none; border-radius: var(--gt-r-1); }
+
+  /* ── Card grid ────────────────────────────────────────────────────────── */
   .grid {
-    margin-top: 64px;
+    margin-top: var(--gt-s-5);
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 22px;
+    grid-template-columns: repeat(auto-fit, minmax(var(--hub-card-min), 1fr));
+    gap: var(--gt-s-5);
   }
+
+  /* .card sits on .gt-card, which supplies frame, elevation, hover and focus. */
   .card {
-    position: relative;
+    display: grid;
+    grid-template-rows: auto 1fr;
+    background: var(--gt-pl-1);       /* flat, so the media scrim can land on it */
+    isolation: isolate;
+  }
+  /* Focus keeps the card's own depth instead of replacing it with a bare ring. */
+  .card:focus-visible {
+    outline: none;
+    box-shadow: var(--gt-focus-ring), var(--gt-e-3), var(--gt-bloom-sm);
+    border-color: var(--gt-sig);
+  }
+
+  /* Media: cover, scrim into the body, a lit bottom edge, serial + corner mark */
+  .media { position: relative; }
+  .media img {
     display: block;
-    border-radius: 20px;
-    background: var(--panel);
-    border: 1px solid var(--line);
-    overflow: hidden;
-    text-decoration: none;
-    color: var(--ink);
-    transition: transform .22s ease, border-color .22s, box-shadow .22s;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    filter: brightness(.86) saturate(.92) contrast(1.03);
+    transition: transform var(--gt-d-4) var(--gt-ease-out),
+                filter    var(--gt-d-3) var(--gt-ease-soft);
   }
-  a.card:hover {
-    transform: translateY(-8px);
-    border-color: rgba(140, 150, 255, 0.55);
-    box-shadow: 0 30px 70px -20px rgba(124, 108, 255, 0.55);
+  .media::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(180deg,
+      rgba(6, 7, 10, 0) 36%,
+      rgba(6, 7, 10, .45) 72%,
+      var(--gt-pl-1) 100%);
   }
-  .card img { width: 100%; aspect-ratio: 16/9; object-fit: cover; display: block; }
-  .card .body { padding: 20px 22px 22px; }
-  .card h2 { font-size: 19px; letter-spacing: 0.1em; }
-  .card p { margin-top: 8px; font-size: 13.5px; line-height: 1.6; color: var(--dim); }
+  .media__edge {
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    height: 2px;
+    z-index: 2;
+    background: var(--gt-sig-dk);
+    transition: background var(--gt-d-3) var(--gt-ease-soft),
+                box-shadow var(--gt-d-3) var(--gt-ease-out);
+  }
+  .idx {
+    position: absolute;
+    top: var(--gt-s-3);
+    left: var(--gt-s-3);
+    z-index: 2;
+  }
+  .corner {
+    position: absolute;
+    top: var(--gt-s-3);
+    right: var(--gt-s-3);
+    z-index: 2;
+    width: 18px; height: 18px;
+    color: var(--gt-ink-4);           /* inert glyph — ink-4 is legal here, never on text */
+    /* gi-corner is drawn as a TOP-LEFT bracket inside its 24-unit box. Placed at
+       the top right it faced the wrong way and floated ~25px off the corner;
+       mirroring both turns it the right way round and seats it at the edge. */
+    transform: scaleX(-1);
+    transition: color var(--gt-d-3) var(--gt-ease-soft);
+  }
+
+  a.card:hover .media img,
+  a.card:focus-visible .media img { transform: scale(1.045); filter: none; }
+  a.card:hover .media__edge,
+  a.card:focus-visible .media__edge { background: var(--gt-sig); box-shadow: var(--gt-bloom-sm); }
+  a.card:hover .corner,
+  a.card:focus-visible .corner { color: var(--gt-sig); }
+
+  /* Body */
+  .card .body {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--gt-s-2);
+    padding: var(--gt-s-5);
+    background: linear-gradient(180deg, var(--gt-pl-1), var(--gt-sub-1));
+  }
+  .card h3 {
+    font-family: var(--gt-font-ui);
+    font-size: var(--gt-t-md);
+    font-weight: 700;
+    letter-spacing: var(--gt-track-head);
+    line-height: var(--gt-lh-head);
+    text-transform: uppercase;
+    color: var(--gt-ink-1);
+  }
+  .card p {
+    font-size: var(--gt-t-sm);
+    line-height: var(--gt-lh-body);
+    color: var(--gt-ink-2);
+  }
+
+  /* CTA — a real plate. Quiet at rest, emissive when the card is engaged. */
   .card .cta {
-    display: inline-block;
-    margin-top: 14px;
-    font-size: 11px;
-    font-weight: 800;
-    letter-spacing: 0.28em;
-    color: var(--gold);
+    display: inline-flex;
+    align-items: center;
+    gap: var(--gt-s-2);
+    margin-top: auto;                 /* pins CTAs to a common baseline per row */
+    padding: 9px 15px;
+    font-family: var(--gt-font-ui);
+    font-size: var(--gt-t-xs);
+    font-weight: 700;
+    letter-spacing: var(--gt-track-btn);
+    text-transform: uppercase;
+    color: var(--gt-sig-ink);
+    background: linear-gradient(180deg, var(--gt-pl-2), var(--gt-pl-1));
+    border: 1px solid var(--gt-edge-bezel);
+    border-radius: var(--gt-r-2);
+    box-shadow: var(--gt-e-1);
+    transition: background var(--gt-d-2) var(--gt-ease-soft),
+                color      var(--gt-d-2) var(--gt-ease-soft),
+                border-color var(--gt-d-2) var(--gt-ease-soft),
+                box-shadow var(--gt-d-2) var(--gt-ease-out);
   }
-  .card.soon { opacity: 0.65; }
+  a.card:hover .cta,
+  a.card:focus-visible .cta {
+    color: var(--gt-ink-on-lit);      /* dark stencil on a lit face */
+    background: var(--gt-sig);
+    border-color: var(--gt-sig-dk);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, .45),
+      inset 0 -1px 0 rgba(0, 0, 0, .3),
+      var(--gt-bloom-sm);
+  }
+
+  /* ── "Coming soon" — a stated condition, not a dimmer switch ──────────────
+     .gt-card--soon supplies the dashed frame, flat fill and ink-3 title.
+     Here it becomes an empty bay: a sunken well, an inert glyph, hazard tape
+     where the lit edge would be, and a CTA that does not pretend to be live. */
+  /* .card sets a flat --gt-pl-1 face for the scrim to land on, which also
+     overrode .gt-card--soon's darker fill (same specificity, later sheet).
+     Put the DS's own value back on the soon card. */
+  .card.soon { background: var(--gt-sub-1); }
   .card.soon .thumb {
-    aspect-ratio: 16/9;
+    aspect-ratio: 16 / 9;
     display: grid;
     place-items: center;
-    font-size: 54px;
-    background:
-      radial-gradient(360px 200px at 50% 20%, rgba(255, 77, 109, 0.14), transparent 70%),
-      #0a0c1c;
+    background: var(--gt-void);
+    box-shadow: inset 0 2px 8px rgba(0, 0, 0, .8), inset 0 -1px 0 var(--gt-lip);
   }
-  .card.soon .cta { color: var(--dim); }
+  .card.soon .thumb::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: var(--gt-hz-inert);
+    opacity: .5;
+  }
+  .card.soon .thumb::after { background: none; }
+  .thumb__icon {
+    position: relative;
+    z-index: 1;
+    width: 46px; height: 46px;
+    color: var(--gt-ink-4);           /* inert glyph, never text */
+  }
+  .card.soon .media__edge {
+    height: 9px;
+    background: var(--gt-hz-inert);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .06);
+  }
+  .card.soon .body { background: none; }
+  .card.soon p { color: var(--gt-ink-3); }
+  .card.soon .cta {
+    color: var(--gt-ink-3);
+    background: none;
+    border-style: dashed;
+    border-color: var(--gt-edge-hair);
+    box-shadow: none;
+  }
+  .card.soon .cta .gi { color: var(--gt-ink-4); }
 
+  /* ── Footer ───────────────────────────────────────────────────────────── */
   footer {
-    margin-top: 70px;
-    font-size: 11.5px;
-    color: #565b7d;
-    line-height: 1.8;
+    margin-top: clamp(48px, 7vw, 78px);
+    padding-top: var(--gt-s-5);
+    border-top: 1px solid var(--gt-edge-hair);
+    font-size: var(--gt-t-sm);
+    line-height: 1.9;
+    color: var(--gt-ink-3);           /* was #565b7d — under AA on this substrate */
   }
-  footer a { color: #8b90b3; }
+  footer a {
+    color: var(--gt-sig-ink);
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    border-radius: var(--gt-r-1);
+    transition: border-color var(--gt-d-2) var(--gt-ease-soft);
+  }
+  footer a:hover { border-bottom-color: currentColor; }
+  footer a:focus-visible { outline: none; box-shadow: var(--gt-focus-ring); }
+
+  @media (max-width: 560px) {
+    :root { --hub-card-min: 240px; }
+    /* Keep the three counters on one line instead of wrapping a lone cell
+       under a dangling divider. */
+    .hero__stat { padding-right: var(--gt-s-4); }
+    .hero__stat + .hero__stat { padding-left: var(--gt-s-4); }
+    .hero__stat dd { font-size: var(--gt-t-lg); }
+  }
+  /* Measured: at s-4 gutters the three cells need 302px, so below a ~375px
+     viewport "In progress" still dropped to a second row under a dangling
+     divider — 360px is the commonest Android width. Tighter gutters, no
+     trailing one, and slightly less label tracking bring the row to ~237px,
+     which holds all the way down to 320px. */
+  @media (max-width: 400px) {
+    .hero__stats { --gt-track-label: .10em; }
+    .hero__stat { padding-right: var(--gt-s-2); }
+    .hero__stat + .hero__stat { padding-left: var(--gt-s-2); }
+    .hero__stat:last-child { padding-right: 0; }
+  }
+
+  /* ds.css already zeroes durations; these remove the transforms outright. */
+  @media (prefers-reduced-motion: reduce) {
+    a.card:hover .media img,
+    a.card:focus-visible .media img { transform: none; }
+  }
 </style>
 </head>
-<body>
+<body data-gt="hub">
+<div class="gt-vignette"></div>
+<div class="gt-grain"></div>
+
 <div class="wrap">
-  <h1>GITATO</h1>
-  <p class="tagline">Projects &amp; experiments by HilsenFar</p>
+  <header class="hero">
+    <p class="hero__eyebrow">
+      <svg class="gi gi--sm" aria-hidden="true" focusable="false"><use href="icons.svg#gi-hex"></use></svg>
+      <span>gitato.net</span>
+      <span class="hero__hair" aria-hidden="true"></span>
+    </p>
+    <h1 class="hero__logo gt-logo">GITATO</h1>
+    <p class="hero__tagline gt-tagline">Projects &amp; experiments by HilsenFar</p>
+
+    <dl class="hero__stats">
+      <div class="hero__stat">
+        <dt class="gt-label">Projects</dt>
+        <dd class="gt-num" id="stat-total">—</dd>
+      </div>
+      <div class="hero__stat">
+        <dt class="gt-label">Live now</dt>
+        <dd class="gt-num" id="stat-live">—</dd>
+      </div>
+      <div class="hero__stat">
+        <dt class="gt-label">In progress</dt>
+        <dd class="gt-num" id="stat-soon">—</dd>
+      </div>
+    </dl>
+  </header>
+
+  <div class="section-head">
+    <h2 class="gt-h2">Projects</h2>
+    <span class="section-head__rule" aria-hidden="true"></span>
+    <span class="section-head__hz gt-hazard gt-hazard--inert" aria-hidden="true"></span>
+  </div>
 
   <div class="grid" id="grid"></div>
 
   <footer>
-    © HilsenFar · <a href="https://github.com/HilsenFar">github.com/HilsenFar</a><br>
+    © HilsenFar · <a class="gt-focusable" href="https://github.com/HilsenFar">github.com/HilsenFar</a><br>
     Sprunki characters &amp; sounds by NyankoBfLol (Scratch, CC BY-SA 2.0) — fan project.
   </footer>
 </div>
@@ -180,23 +487,56 @@
       title: "HILSENFAR — MUSIC",
       desc: "Live sets, hard techno and AI basslines. Releases on the way.",
       emoji: "🎧",
+      icon: "gi-headphones",
       cta: "COMING SOON",
     },
   ];
 
+  // ── Ikoner: emoji og pil-glyffer erstattes af spriten (ds v2). ────────────
+  const icon = (id, cls) =>
+    `<svg class="${cls || 'gi'}" aria-hidden="true" focusable="false"><use href="icons.svg#${id}"></use></svg>`;
+
+  const CTA_ICONS = [[/download/i, 'gi-download'], [/play/i, 'gi-play'], [/open/i, 'gi-external']];
+  const ctaIcon = (label) => (CTA_ICONS.find(([re]) => re.test(label)) || [null, 'gi-arrow-right'])[1];
+  // "PLAY ▸" → "PLAY": pilen bliver et rigtigt ikon i stedet for en glyf.
+  const ctaLabel = (cta) => String(cta).replace(/[\s▶▸►➤→»]+$/, '');
+
+  const num = (n) => String(n).padStart(2, '0');
+
   const grid = document.getElementById('grid');
-  for (const p of PROJECTS) {
-    const el = document.createElement(p.url ? 'a' : 'div');
-    el.className = 'card' + (p.url ? '' : ' soon');
-    if (p.url) { el.href = p.url; }
+  PROJECTS.forEach((p, i) => {
+    const isLive = Boolean(p.url);
+    const el = document.createElement(isLive ? 'a' : 'div');
+    el.className = 'gt-card card' + (isLive ? '' : ' gt-card--soon soon');
+    if (isLive) { el.href = p.url; }
+    const label = ctaLabel(p.cta);
     el.innerHTML = `
-      ${p.img ? `<img src="${p.img}" alt="${p.title}">` : `<div class="thumb">${p.emoji ?? '✦'}</div>`}
+      <div class="media${p.img ? '' : ' thumb'}">
+        ${p.img
+          ? `<img src="${p.img}" alt="" loading="${i < 2 ? 'eager' : 'lazy'}" decoding="async">`
+          : icon(p.icon || 'gi-spark', 'gi thumb__icon')}
+        <span class="idx gt-badge" aria-hidden="true">${num(i + 1)}</span>
+        ${p.img ? icon('gi-corner', 'gi corner') : ''}
+        <span class="media__edge" aria-hidden="true"></span>
+      </div>
       <div class="body">
-        <h2>${p.title}</h2>
+        <h3 class="gt-card__title">${p.title}</h3>
         <p>${p.desc}</p>
-        <span class="cta">${p.cta}</span>
+        <span class="cta">${label}${icon(isLive ? ctaIcon(label) : 'gi-dot')}</span>
       </div>`;
     grid.appendChild(el);
+  });
+
+  // Tællerne i hero'en læses af selve listen, så de aldrig kan blive forkerte.
+  const liveCount = PROJECTS.filter((p) => p.url).length;
+  const stats = {
+    'stat-total': PROJECTS.length,
+    'stat-live': liveCount,
+    'stat-soon': PROJECTS.length - liveCount,
+  };
+  for (const [id, value] of Object.entries(stats)) {
+    const node = document.getElementById(id);
+    if (node) { node.textContent = num(value); }
   }
 
   if ('serviceWorker' in navigator && !['localhost', '127.0.0.1'].includes(location.hostname)) {
