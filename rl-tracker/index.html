@@ -8,159 +8,316 @@
 <meta property="og:title" content="RL Live Tracker" />
 <meta property="og:description" content="A free coaching tracker that reads Rocket League's official Stats API while you play. Your data stays on your PC." />
 <meta property="og:image" content="https://gitato.net/assets/icons/icon-512.png" />
-<meta name="theme-color" content="#0A0C10" />
+<meta name="theme-color" content="#101A2E" />
 <link rel="icon" type="image/png" href="/assets/icons/icon-192.png" />
-<!-- GITATO Design System v2 — must load before this page's own styles -->
+<!-- GITATO Design System v2 (fonts + focus + base tokens) loads first;
+     this page lays a "stadium night" skin on top of it. -->
 <link rel="stylesheet" href="/ds.css" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..125,500..900&display=swap" />
 <style>
-  /* Landing surface on top of ds.css. Shared ground (substrate, ink, edges,
-     type, motion, focus) comes from the system; only this page's layout
-     lives here. Theme: rltracker (cyan signal, amber secondary). */
+  /* ═══ STADIUM NIGHT — landing skin ═══
+     The app itself keeps the machined DS look; this page is the one
+     surface that must invite strangers in, so the steel plate becomes
+     a floodlit stadium at night. Palette:
+       night #101A2E · deck #172440 · pitch-line #27D9C0
+       boost #FF9E2C · away-blue #38B6FF                             */
+  :root {
+    --st-night:  #101A2E;
+    --st-deck:   #172440;
+    --st-deck-2: #1C2C50;
+    --st-line:   #27D9C0;
+    --st-boost:  #FF9E2C;
+    --st-boost-dk: #B26A12;
+    --st-blue:   #38B6FF;
+    --st-ink:    #EAF2FF;
+    --st-ink-2:  #B8C7E0;
+    --st-ink-3:  #8CA0BF;
+    --st-on-boost: #1A1206;
+    --st-on-line:  #072019;
+    --st-edge:   rgba(184, 199, 224, .13);
+    --st-r:      12px;
+    --f-disp: 'Archivo', 'Chakra Petch', sans-serif;
+    --f-ui:   'Chakra Petch', sans-serif;
+    --f-body: 'Barlow', sans-serif;
+  }
+
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
-  html { background: var(--gt-sub-0); }
+  html { background: var(--st-night); }
   body {
     min-height: 100%;
     background:
-      radial-gradient(1100px 640px at 70% -12%, rgba(25, 224, 255, .07), transparent 60%),
-      var(--gt-sub-0);
+      radial-gradient(1100px 560px at 50% -180px, rgba(56, 182, 255, .13), transparent 62%),
+      radial-gradient(800px 460px at 88% 30%, rgba(39, 217, 192, .05), transparent 58%),
+      var(--st-night);
     background-attachment: fixed;
-    color: var(--gt-ink-2);
-    font-family: var(--gt-font-body);
-    font-size: var(--gt-t-base);
-    line-height: var(--gt-lh-body);
+    color: var(--st-ink-2);
+    font-family: var(--f-body);
+    font-size: 16.5px;
+    line-height: 1.6;
     -webkit-font-smoothing: antialiased;
   }
 
-  .wrap {
-    position: relative;
-    z-index: 2;
-    max-width: 880px;
-    margin: 0 auto;
-    padding: 0 var(--gt-s-5) var(--gt-s-8);
+  .wrap { max-width: 1020px; margin: 0 auto; padding: 0 22px 72px; }
+
+  a { color: var(--st-blue); }
+  a:focus-visible, button:focus-visible {
+    outline: 2px solid var(--st-line); outline-offset: 3px; border-radius: 4px;
   }
 
-  /* ── Top bar: wordmark home-link. Orbitron is for the logotype only. ── */
+  /* ── Top bar ── */
   .top {
-    display: flex; align-items: baseline; gap: var(--gt-s-3);
-    padding: var(--gt-s-5) 0 var(--gt-s-7);
+    display: flex; align-items: baseline; gap: 14px;
+    padding: 26px 0 54px;
   }
   .top a.mark {
-    font-family: var(--gt-font-logo);
-    font-weight: 800; font-size: 15px; letter-spacing: .22em;
-    color: var(--gt-ink-1); text-decoration: none;
+    font-family: var(--gt-font-logo, 'Orbitron', sans-serif);
+    font-weight: 800; font-size: 14px; letter-spacing: .24em;
+    color: var(--st-ink); text-decoration: none;
   }
-  .top a.mark:focus-visible { outline: 2px solid var(--gt-sig); outline-offset: 3px; }
-  .top .crumb { font-family: var(--gt-font-ui); font-size: var(--gt-t-xs);
-    letter-spacing: .14em; text-transform: uppercase; color: var(--gt-ink-3); }
+  .top .crumb {
+    font-family: var(--f-ui); font-size: 11.5px;
+    letter-spacing: .16em; text-transform: uppercase; color: var(--st-ink-3);
+  }
 
-  /* ── Hero ── */
+  /* ── Hero: headline left, example debrief right, pitch behind ── */
+  .hero {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, .85fr);
+    gap: 44px;
+    align-items: center;
+  }
+  .pitch {
+    position: absolute;
+    right: -70px; top: 50%; translate: 0 -50%;
+    width: 560px; max-width: 66vw;
+    opacity: .16;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .pitch * { stroke: var(--st-line); fill: none; stroke-width: 1.6; }
+  .pitch .pad { fill: var(--st-line); stroke: none; }
+
+  .hero-copy { position: relative; z-index: 1; }
+  .eyebrow {
+    display: flex; flex-wrap: wrap; gap: 8px;
+    font-family: var(--f-ui); font-size: 11.5px; font-weight: 600;
+    letter-spacing: .14em; text-transform: uppercase;
+    color: var(--st-ink-3);
+    margin-bottom: 20px;
+  }
+  .eyebrow .sep { color: var(--st-line); }
   h1 {
-    font-family: var(--gt-font-ui);
-    font-weight: 700; font-size: clamp(30px, 6vw, 46px);
-    letter-spacing: .06em; text-transform: uppercase;
-    color: var(--gt-ink-1);
-    line-height: 1.08;
+    font-family: var(--f-disp);
+    font-stretch: 118%;
+    font-weight: 840;
+    font-size: clamp(38px, 6.4vw, 62px);
+    line-height: 1.02;
+    letter-spacing: -.005em;
+    text-transform: uppercase;
+    color: var(--st-ink);
   }
-  .tagline { margin-top: var(--gt-s-3); max-width: 60ch; color: var(--gt-ink-2); }
+  h1 .tell { color: var(--st-boost); }
+  .sub { margin-top: 18px; max-width: 54ch; font-size: 17.5px; }
 
-  .dl-row { margin-top: var(--gt-s-6); display: flex; flex-wrap: wrap;
-    align-items: center; gap: var(--gt-s-4); }
+  .dl-row {
+    margin-top: 30px;
+    display: flex; flex-wrap: wrap; align-items: center; gap: 18px;
+  }
   a.dl {
-    font-size: var(--gt-t-base);
-    padding: 16px 28px;
-    text-decoration: none;
+    display: inline-flex; align-items: center; gap: 10px;
+    padding: 17px 30px;
+    font-family: var(--f-ui); font-size: 15.5px; font-weight: 700;
+    letter-spacing: .09em; text-transform: uppercase;
+    color: var(--st-on-boost); text-decoration: none;
+    background: linear-gradient(180deg, #FFB458, var(--st-boost));
+    border-radius: 9px;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, .5),
+      0 0 0 1px var(--st-boost-dk),
+      0 3px 10px rgba(0, 0, 0, .45),
+      0 0 26px -6px rgba(255, 158, 44, .55);
+    transition: filter .16s ease, transform .1s ease, box-shadow .16s ease;
   }
-  a.dl:hover { filter: brightness(1.06); }
+  a.dl:hover {
+    filter: brightness(1.07);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, .5),
+      0 0 0 1px var(--st-boost-dk),
+      0 3px 12px rgba(0, 0, 0, .5),
+      0 0 40px -4px rgba(255, 158, 44, .75);
+  }
   a.dl:active { transform: translateY(1px); }
-  a.dl:focus-visible { outline: 2px solid var(--gt-ink-1); outline-offset: 3px; }
-  a.dl .gi { width: 20px; height: 20px; }
-  .dl-meta { font-family: var(--gt-font-ui); font-size: var(--gt-t-xs);
-    letter-spacing: .1em; text-transform: uppercase; color: var(--gt-ink-3); }
-
-  .smartscreen {
-    margin-top: var(--gt-s-4);
-    max-width: 64ch;
-    font-size: var(--gt-t-sm); color: var(--gt-ink-3);
+  a.dl svg { width: 19px; height: 19px; stroke: currentColor; }
+  .dl-meta {
+    font-family: var(--f-ui); font-size: 11.5px; font-weight: 600;
+    letter-spacing: .13em; text-transform: uppercase; color: var(--st-ink-3);
   }
-  .smartscreen b { color: var(--gt-ink-2); font-weight: 600; }
+  .smartscreen { margin-top: 20px; max-width: 58ch; font-size: 14.5px; color: var(--st-ink-3); }
+  .smartscreen b { color: var(--st-ink-2); font-weight: 600; }
 
-  /* ── Fact panels ── */
+  /* ── The example debrief card: the product, shown as itself ── */
+  .debrief {
+    position: relative; z-index: 1;
+    background: linear-gradient(180deg, var(--st-deck-2), var(--st-deck));
+    border: 1px solid var(--st-edge);
+    border-radius: var(--st-r);
+    padding: 24px 24px 22px;
+    box-shadow: 0 18px 44px -18px rgba(0, 0, 0, .65);
+  }
+  .debrief .tag {
+    display: inline-block;
+    font-family: var(--f-ui); font-size: 10.5px; font-weight: 700;
+    letter-spacing: .16em; text-transform: uppercase;
+    color: var(--st-line);
+    border: 1px solid rgba(39, 217, 192, .45);
+    border-radius: 4px;
+    padding: 3px 8px;
+    margin-bottom: 16px;
+  }
+  .debrief .kicker {
+    font-family: var(--f-ui); font-size: 11.5px; font-weight: 600;
+    letter-spacing: .14em; text-transform: uppercase; color: var(--st-ink-3);
+  }
+  .debrief h3 {
+    font-family: var(--f-ui); font-size: 21px; font-weight: 700;
+    letter-spacing: .02em; color: var(--st-ink);
+    margin: 4px 0 16px;
+  }
+  .meter { position: relative; height: 10px; border-radius: 5px;
+    background: rgba(6, 12, 24, .75);
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, .6);
+    overflow: visible;
+  }
+  .meter .fill {
+    position: absolute; inset: 0 auto 0 0; width: 58%;
+    border-radius: 5px;
+    background: linear-gradient(90deg, rgba(39, 217, 192, .55), var(--st-line));
+    transform-origin: left center;
+  }
+  .meter .base {
+    position: absolute; left: 41%; top: -5px; bottom: -5px; width: 2px;
+    background: var(--st-ink-3);
+  }
+  .stats {
+    display: flex; gap: 26px;
+    margin: 14px 0 18px;
+    font-family: var(--f-ui); font-variant-numeric: tabular-nums;
+  }
+  .stats .lbl { display: block; font-size: 10.5px; font-weight: 600;
+    letter-spacing: .14em; text-transform: uppercase; color: var(--st-ink-3); }
+  .stats .val { font-size: 19px; font-weight: 700; color: var(--st-ink); }
+  .stats .val.today { color: var(--st-line); }
+  .advice {
+    border-top: 1px solid var(--st-edge);
+    padding-top: 14px;
+    font-size: 15px; color: var(--st-ink-2);
+  }
+  .advice .src {
+    display: inline-block; margin-top: 8px;
+    font-family: var(--f-ui); font-size: 10.5px; font-weight: 600;
+    letter-spacing: .13em; text-transform: uppercase; color: var(--st-ink-3);
+  }
+
+  /* ── Fact cards ── */
   .facts {
-    margin-top: var(--gt-s-8);
-    display: grid; gap: var(--gt-s-4);
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    margin-top: 76px;
+    display: grid; gap: 16px;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   }
-  .facts .gt-panel { padding: var(--gt-s-5); }
-  .facts h2 {
-    display: flex; align-items: center; gap: var(--gt-s-2);
-    font-family: var(--gt-font-ui); font-size: var(--gt-t-sm);
-    font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
-    color: var(--gt-ink-1);
-    margin-bottom: var(--gt-s-3);
+  .card {
+    background: var(--st-deck);
+    border: 1px solid var(--st-edge);
+    border-radius: var(--st-r);
+    padding: 24px;
   }
-  .facts h2 .gi { width: 17px; height: 17px; color: var(--gt-sig); }
-  .facts p { font-size: var(--gt-t-sm); color: var(--gt-ink-2); }
-  .facts p + p { margin-top: var(--gt-s-2); }
-  .facts a { color: var(--gt-sig-ink); }
-  .facts a:focus-visible { outline: 2px solid var(--gt-sig); outline-offset: 2px; }
+  .card h2, .privacy h2, .steps h2 {
+    display: flex; align-items: center; gap: 10px;
+    font-family: var(--f-ui); font-size: 13.5px; font-weight: 700;
+    letter-spacing: .13em; text-transform: uppercase;
+    color: var(--st-ink);
+    margin-bottom: 14px;
+  }
+  .card h2 .gi, .privacy h2 .gi { width: 17px; height: 17px; color: var(--st-line); }
+  .card p { font-size: 15px; }
+  .card p + p { margin-top: 9px; }
 
-  /* ── Privacy panel ── */
-  .privacy { margin-top: var(--gt-s-4); padding: var(--gt-s-5); }
-  .privacy h2 {
-    display: flex; align-items: center; gap: var(--gt-s-2);
-    font-family: var(--gt-font-ui); font-size: var(--gt-t-sm);
-    font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
-    color: var(--gt-ink-1); margin-bottom: var(--gt-s-3);
+  /* ── Privacy ── */
+  .privacy {
+    margin-top: 16px;
+    background: var(--st-deck);
+    border: 1px solid var(--st-edge);
+    border-radius: var(--st-r);
+    padding: 26px;
   }
-  .privacy h2 .gi { width: 17px; height: 17px; color: var(--gt-sig); }
-  .privacy ul { list-style: none; }
-  .privacy li {
-    position: relative;
-    padding: 6px 0 6px 26px;
-    font-size: var(--gt-t-sm);
-  }
+  .privacy ul { list-style: none; max-width: 74ch; }
+  .privacy li { position: relative; padding: 7px 0 7px 24px; font-size: 15px; }
   .privacy li::before {
-    content: ""; position: absolute; left: 4px; top: 13px;
-    width: 10px; height: 2px; background: var(--gt-sig);
+    content: ""; position: absolute; left: 2px; top: 15px;
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--st-boost);
+    box-shadow: 0 0 8px -1px rgba(255, 158, 44, .8);
   }
 
-  /* ── Steps ── */
-  .steps { margin-top: var(--gt-s-8); }
-  .steps h2 { font-family: var(--gt-font-ui); font-size: var(--gt-t-sm);
-    font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
-    color: var(--gt-ink-1); margin-bottom: var(--gt-s-4); }
-  .steps ol { list-style: none; counter-reset: step; }
+  /* ── Kickoff steps: 3 · 2 · 1 · GO ── */
+  .steps { margin-top: 64px; }
+  .steps ol { list-style: none; }
   .steps li {
-    counter-increment: step;
-    position: relative;
-    padding: var(--gt-s-3) 0 var(--gt-s-3) 52px;
-    border-top: 1px solid var(--gt-edge-hair);
-    font-size: var(--gt-t-sm);
+    display: flex; align-items: center; gap: 22px;
+    padding: 16px 4px;
+    border-top: 1px solid var(--st-edge);
+    font-size: 15.5px;
   }
-  .steps li:last-child { border-bottom: 1px solid var(--gt-edge-hair); }
-  .steps li::before {
-    content: counter(step, decimal-leading-zero);
-    position: absolute; left: 0; top: 50%; transform: translateY(-50%);
-    font-family: var(--gt-font-ui); font-weight: 700; font-size: var(--gt-t-base);
-    color: var(--gt-sig-ink);
-    letter-spacing: .05em;
+  .steps li:last-child { border-bottom: 1px solid var(--st-edge); }
+  .steps .n {
+    flex: 0 0 46px;
+    font-family: var(--f-disp); font-stretch: 118%;
+    font-weight: 840; font-size: 32px; line-height: 1;
+    color: var(--st-boost);
+    text-align: center;
+  }
+  .steps .go {
+    flex: 0 0 46px;
+    display: inline-flex; align-items: center; justify-content: center;
+    height: 34px;
+    font-family: var(--f-disp); font-stretch: 118%;
+    font-weight: 840; font-size: 17px; letter-spacing: .04em;
+    color: var(--st-on-line);
+    background: var(--st-line);
+    border-radius: 7px;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .45), 0 0 18px -4px rgba(39, 217, 192, .7);
   }
 
   /* ── Footer ── */
   footer {
-    margin-top: var(--gt-s-8);
-    padding-top: var(--gt-s-5);
-    border-top: 1px solid var(--gt-edge-hair);
-    font-size: var(--gt-t-xs); color: var(--gt-ink-3);
-    display: flex; flex-wrap: wrap; gap: var(--gt-s-2) var(--gt-s-5);
+    margin-top: 64px;
+    padding-top: 22px;
+    border-top: 1px solid var(--st-edge);
+    font-size: 13px; color: var(--st-ink-3);
+    display: flex; flex-wrap: wrap; gap: 8px 34px;
   }
-  footer a { color: var(--gt-ink-3); }
-  footer a:focus-visible { outline: 2px solid var(--gt-sig); outline-offset: 2px; }
+  footer a { color: var(--st-ink-3); }
+
+  /* ── Motion: one orchestrated load moment ── */
+  @media (prefers-reduced-motion: no-preference) {
+    .hero-copy, .debrief { animation: rise .55s cubic-bezier(.2, .7, .2, 1) both; }
+    .debrief { animation-delay: .12s; }
+    .meter .fill { animation: charge .9s cubic-bezier(.2, .7, .2, 1) .45s both; }
+    .pitch .pad { animation: pulse 4.5s ease-in-out infinite alternate; }
+    @keyframes rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; } }
+    @keyframes charge { from { transform: scaleX(.7); } to { transform: scaleX(1); } }
+    @keyframes pulse { from { opacity: .45; } to { opacity: 1; } }
+  }
+
+  @media (max-width: 900px) {
+    .hero { grid-template-columns: 1fr; gap: 34px; }
+    .pitch { right: -120px; top: 8%; translate: 0 0; opacity: .10; }
+    .steps li { gap: 16px; }
+  }
 </style>
 </head>
 <body data-gt="rltracker">
-<div class="gt-vignette"></div>
 <div class="wrap">
 
   <div class="top">
@@ -168,25 +325,66 @@
     <span class="crumb">/ RL Live Tracker</span>
   </div>
 
-  <h1>RL Live Tracker</h1>
-  <p class="tagline">A free coaching tracker for Rocket League on PC. It reads the
-  game's official Stats API on your machine while you play, measures your habits
-  against your own baseline, and coaches you one focus at a time.</p>
+  <section class="hero">
+    <svg class="pitch" viewBox="0 0 560 400" aria-hidden="true">
+      <!-- top-down RL pitch: octagonal field, center circle, goal boxes, big boost pads -->
+      <path d="M64 12 H496 L548 64 V336 L496 388 H64 L12 336 V64 Z" />
+      <line x1="280" y1="12" x2="280" y2="388" />
+      <circle cx="280" cy="200" r="62" />
+      <rect x="12" y="130" width="58" height="140" />
+      <rect x="490" y="130" width="58" height="140" />
+      <circle class="pad" cx="120" cy="88" r="5" />
+      <circle class="pad" cx="440" cy="88" r="5" />
+      <circle class="pad" cx="86" cy="200" r="5" />
+      <circle class="pad" cx="474" cy="200" r="5" />
+      <circle class="pad" cx="120" cy="312" r="5" />
+      <circle class="pad" cx="440" cy="312" r="5" />
+    </svg>
 
-  <div class="dl-row">
-    <a class="gt-plate dl" href="https://github.com/HilsenFar/rl-tracker-releases/releases/latest/download/RL-Tracker-Portable.zip">
-      <svg class="gi" aria-hidden="true"><use href="/icons.svg#gi-download"></use></svg>
-      Download for Windows
-    </a>
-    <span class="dl-meta">Free · latest version · direct .zip</span>
-  </div>
+    <div class="hero-copy">
+      <div class="eyebrow">
+        <span>RL Live Tracker</span><span class="sep">·</span>
+        <span>Open test phase</span>
+      </div>
+      <h1>Your car has a <span class="tell">tell</span>.</h1>
+      <p class="sub">A free coach for Rocket League on PC. It reads the game's
+      official Stats API on your machine while you play, measures your habits
+      against your own baseline, and coaches you one focus at a time.</p>
 
-  <p class="smartscreen">Windows SmartScreen will warn you, because this is an
-  unsigned indie build. Click <b>"More info"</b>, then <b>"Run anyway"</b>.
-  The README.txt in the zip walks you through everything else.</p>
+      <div class="dl-row">
+        <a class="dl" href="https://github.com/HilsenFar/rl-tracker-releases/releases/latest/download/RL-Tracker-Portable.zip">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 3v12m0 0l-5-5m5 5l5-5M4 21h16" />
+          </svg>
+          Download for Windows
+        </a>
+        <span class="dl-meta">Free · latest version · direct .zip</span>
+      </div>
+
+      <p class="smartscreen">Windows SmartScreen will warn you, because this is
+      an unsigned indie build. Click <b>"More info"</b>, then <b>"Run anyway"</b>.
+      The README.txt in the zip walks you through everything else.</p>
+    </div>
+
+    <aside class="debrief" aria-label="Example of a post-match debrief">
+      <span class="tag">Example debrief</span>
+      <span class="kicker">One focus at a time</span>
+      <h3>Kickoff first touch</h3>
+      <div class="meter" role="img" aria-label="Meter: today 58 percent, your normal 41 percent">
+        <span class="base"></span>
+        <span class="fill"></span>
+      </div>
+      <div class="stats">
+        <span><span class="lbl">Today</span><span class="val today">4 / 7</span></span>
+        <span><span class="lbl">Your normal</span><span class="val">2 / 7</span></span>
+      </div>
+      <p class="advice">"Contest the kickoff, but arrive with boost to spare."
+        <span class="src">Source cited in the app</span></p>
+    </aside>
+  </section>
 
   <div class="facts">
-    <section class="gt-panel">
+    <section class="card">
       <h2><svg class="gi" aria-hidden="true"><use href="/icons.svg#gi-target"></use></svg>Measured, not generated</h2>
       <p>Around 30 behavioral metrics per match: kickoff first touches, touch
       power, boost discipline, movement. All computed from the telemetry the
@@ -194,14 +392,14 @@
       <p>Your baseline is your own play. Never pro benchmarks.</p>
     </section>
 
-    <section class="gt-panel">
+    <section class="card">
       <h2><svg class="gi" aria-hidden="true"><use href="/icons.svg#gi-info"></use></svg>Advice with sources</h2>
       <p>The written advice comes from a bank of quotes from published Rocket
       League coaching guides. Over 30 sources, cited in the app, so you can see
       whose advice you are getting and look it up yourself.</p>
     </section>
 
-    <section class="gt-panel">
+    <section class="card">
       <h2><svg class="gi" aria-hidden="true"><use href="/icons.svg#gi-check-circle"></use></svg>Works with EAC on</h2>
       <p>One setting in TAStatsAPI.ini, and Rocket League broadcasts match JSON
       on a local port on your PC. Nothing touches the game's process or memory.</p>
@@ -210,7 +408,7 @@
     </section>
   </div>
 
-  <section class="gt-panel privacy">
+  <section class="privacy">
     <h2><svg class="gi" aria-hidden="true"><use href="/icons.svg#gi-shield"></use></svg>Your data stays yours</h2>
     <ul>
       <li>No login, no account, nothing to sign up for.</li>
@@ -225,11 +423,12 @@
   </section>
 
   <section class="steps">
-    <h2>Get started</h2>
+    <h2>Kickoff</h2>
     <ol>
-      <li>Download the zip and unpack it anywhere.</li>
-      <li>Run the exe inside. Answer the test-round question however you like.</li>
-      <li>Play ranked. Your first matches build your baseline, then the coaching starts.</li>
+      <li><span class="n">3</span><span>Download the zip and unpack it anywhere.</span></li>
+      <li><span class="n">2</span><span>Run the exe inside. Answer the test-round question however you like.</span></li>
+      <li><span class="n">1</span><span>Play ranked. Your first matches build your baseline.</span></li>
+      <li><span class="go">GO</span><span>The coaching starts.</span></li>
     </ol>
   </section>
 
