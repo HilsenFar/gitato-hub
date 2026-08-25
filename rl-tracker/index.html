@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>RL Live Tracker</title>
+<meta name="description" content="A free coaching tracker that reads Rocket League's official Stats API while you play. Your data stays on your PC." />
+<meta property="og:title" content="RL Live Tracker" />
+<meta property="og:description" content="A free coaching tracker that reads Rocket League's official Stats API while you play. Your data stays on your PC." />
+<meta property="og:image" content="https://gitato.net/assets/icons/icon-512.png" />
+<meta name="theme-color" content="#0A0C10" />
+<link rel="icon" type="image/png" href="/assets/icons/icon-192.png" />
+<!-- GITATO Design System v2 — must load before this page's own styles -->
+<link rel="stylesheet" href="/ds.css" />
+<style>
+  /* Landing surface on top of ds.css. Shared ground (substrate, ink, edges,
+     type, motion, focus) comes from the system; only this page's layout
+     lives here. Theme: rltracker (cyan signal, amber secondary). */
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { background: var(--gt-sub-0); }
+  body {
+    min-height: 100%;
+    background:
+      radial-gradient(1100px 640px at 70% -12%, rgba(25, 224, 255, .07), transparent 60%),
+      var(--gt-sub-0);
+    background-attachment: fixed;
+    color: var(--gt-ink-2);
+    font-family: var(--gt-font-body);
+    font-size: var(--gt-t-base);
+    line-height: var(--gt-lh-body);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap {
+    position: relative;
+    z-index: 2;
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 0 var(--gt-s-5) var(--gt-s-8);
+  }
+
+  /* ── Top bar: wordmark home-link. Orbitron is for the logotype only. ── */
+  .top {
+    display: flex; align-items: baseline; gap: var(--gt-s-3);
+    padding: var(--gt-s-5) 0 var(--gt-s-7);
+  }
+  .top a.mark {
+    font-family: var(--gt-font-logo);
+    font-weight: 800; font-size: 15px; letter-spacing: .22em;
+    color: var(--gt-ink-1); text-decoration: none;
+  }
+  .top a.mark:focus-visible { outline: 2px solid var(--gt-sig); outline-offset: 3px; }
+  .top .crumb { font-family: var(--gt-font-ui); font-size: var(--gt-t-xs);
+    letter-spacing: .14em; text-transform: uppercase; color: var(--gt-ink-3); }
+
+  /* ── Hero ── */
+  h1 {
+    font-family: var(--gt-font-ui);
+    font-weight: 700; font-size: clamp(30px, 6vw, 46px);
+    letter-spacing: .06em; text-transform: uppercase;
+    color: var(--gt-ink-1);
+    line-height: 1.08;
+  }
+  .tagline { margin-top: var(--gt-s-3); max-width: 60ch; color: var(--gt-ink-2); }
+
+  .dl-row { margin-top: var(--gt-s-6); display: flex; flex-wrap: wrap;
+    align-items: center; gap: var(--gt-s-4); }
+  a.dl {
+    font-size: var(--gt-t-base);
+    padding: 16px 28px;
+    text-decoration: none;
+  }
+  a.dl:hover { filter: brightness(1.06); }
+  a.dl:active { transform: translateY(1px); }
+  a.dl:focus-visible { outline: 2px solid var(--gt-ink-1); outline-offset: 3px; }
+  a.dl .gi { width: 20px; height: 20px; }
+  .dl-meta { font-family: var(--gt-font-ui); font-size: var(--gt-t-xs);
+    letter-spacing: .1em; text-transform: uppercase; color: var(--gt-ink-3); }
+
+  .smartscreen {
+    margin-top: var(--gt-s-4);
+    max-width: 64ch;
+    font-size: var(--gt-t-sm); color: var(--gt-ink-3);
+  }
+  .smartscreen b { color: var(--gt-ink-2); font-weight: 600; }
+
+  /* ── Fact panels ── */
+  .facts {
+    margin-top: var(--gt-s-8);
+    display: grid; gap: var(--gt-s-4);
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  }
+  .facts .gt-panel { padding: var(--gt-s-5); }
+  .facts h2 {
+    display: flex; align-items: center; gap: var(--gt-s-2);
+    font-family: var(--gt-font-ui); font-size: var(--gt-t-sm);
+    font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
+    color: var(--gt-ink-1);
+    margin-bottom: var(--gt-s-3);
+  }
+  .facts h2 .gi { width: 17px; height: 17px; color: var(--gt-sig); }
+  .facts p { font-size: var(--gt-t-sm); color: var(--gt-ink-2); }
+  .facts p + p { margin-top: var(--gt-s-2); }
+  .facts a { color: var(--gt-sig-ink); }
+  .facts a:focus-visible { outline: 2px solid var(--gt-sig); outline-offset: 2px; }
+
+  /* ── Privacy panel ── */
+  .privacy { margin-top: var(--gt-s-4); padding: var(--gt-s-5); }
+  .privacy h2 {
+    display: flex; align-items: center; gap: var(--gt-s-2);
+    font-family: var(--gt-font-ui); font-size: var(--gt-t-sm);
+    font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
+    color: var(--gt-ink-1); margin-bottom: var(--gt-s-3);
+  }
+  .privacy h2 .gi { width: 17px; height: 17px; color: var(--gt-sig); }
+  .privacy ul { list-style: none; }
+  .privacy li {
+    position: relative;
+    padding: 6px 0 6px 26px;
+    font-size: var(--gt-t-sm);
+  }
+  .privacy li::before {
+    content: ""; position: absolute; left: 4px; top: 13px;
+    width: 10px; height: 2px; background: var(--gt-sig);
+  }
+
+  /* ── Steps ── */
+  .steps { margin-top: var(--gt-s-8); }
+  .steps h2 { font-family: var(--gt-font-ui); font-size: var(--gt-t-sm);
+    font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
+    color: var(--gt-ink-1); margin-bottom: var(--gt-s-4); }
+  .steps ol { list-style: none; counter-reset: step; }
+  .steps li {
+    counter-increment: step;
+    position: relative;
+    padding: var(--gt-s-3) 0 var(--gt-s-3) 52px;
+    border-top: 1px solid var(--gt-edge-hair);
+    font-size: var(--gt-t-sm);
+  }
+  .steps li:last-child { border-bottom: 1px solid var(--gt-edge-hair); }
+  .steps li::before {
+    content: counter(step, decimal-leading-zero);
+    position: absolute; left: 0; top: 50%; transform: translateY(-50%);
+    font-family: var(--gt-font-ui); font-weight: 700; font-size: var(--gt-t-base);
+    color: var(--gt-sig-ink);
+    letter-spacing: .05em;
+  }
+
+  /* ── Footer ── */
+  footer {
+    margin-top: var(--gt-s-8);
+    padding-top: var(--gt-s-5);
+    border-top: 1px solid var(--gt-edge-hair);
+    font-size: var(--gt-t-xs); color: var(--gt-ink-3);
+    display: flex; flex-wrap: wrap; gap: var(--gt-s-2) var(--gt-s-5);
+  }
+  footer a { color: var(--gt-ink-3); }
+  footer a:focus-visible { outline: 2px solid var(--gt-sig); outline-offset: 2px; }
+</style>
+</head>
+<body data-gt="rltracker">
+<div class="gt-vignette"></div>
+<div class="wrap">
+
+  <div class="top">
+    <a class="mark" href="/">GITATO</a>
+    <span class="crumb">/ RL Live Tracker</span>
+  </div>
+
+  <h1>RL Live Tracker</h1>
+  <p class="tagline">A free coaching tracker for Rocket League on PC. It reads the
+  game's official Stats API on your machine while you play, measures your habits
+  against your own baseline, and coaches you one focus at a time.</p>
+
+  <div class="dl-row">
+    <a class="gt-plate dl" href="https://github.com/HilsenFar/rl-tracker-releases/releases/latest/download/RL-Tracker-Portable.zip">
+      <svg class="gi" aria-hidden="true"><use href="/icons.svg#gi-download"></use></svg>
+      Download for Windows
+    </a>
+    <span class="dl-meta">Free · latest version · direct .zip</span>
+  </div>
+
+  <p class="smartscreen">Windows SmartScreen will warn you, because this is an
+  unsigned indie build. Click <b>"More info"</b>, then <b>"Run anyway"</b>.
+  The LAES-MIG.txt in the zip walks you through everything else.</p>
+
+  <div class="facts">
+    <section class="gt-panel">
+      <h2><svg class="gi" aria-hidden="true"><use href="/icons.svg#gi-target"></use></svg>Measured, not generated</h2>
+      <p>Around 30 behavioral metrics per match: kickoff first touches, touch
+      power, boost discipline, movement. All computed from the telemetry the
+      game itself broadcasts.</p>
+      <p>Your baseline is your own play. Never pro benchmarks.</p>
+    </section>
+
+    <section class="gt-panel">
+      <h2><svg class="gi" aria-hidden="true"><use href="/icons.svg#gi-info"></use></svg>Advice with sources</h2>
+      <p>The written advice comes from a bank of quotes from published Rocket
+      League coaching guides. Over 30 sources, cited in the app, so you can see
+      whose advice you are getting and look it up yourself.</p>
+    </section>
+
+    <section class="gt-panel">
+      <h2><svg class="gi" aria-hidden="true"><use href="/icons.svg#gi-check-circle"></use></svg>Works with EAC on</h2>
+      <p>One setting in TAStatsAPI.ini, and Rocket League broadcasts match JSON
+      on a local port on your PC. Nothing touches the game's process or memory.</p>
+      <p><a href="https://rocketleague.com/developer/stats-api" rel="noopener">Psyonix
+      documents this channel</a> for exactly this purpose.</p>
+    </section>
+  </div>
+
+  <section class="gt-panel privacy">
+    <h2><svg class="gi" aria-hidden="true"><use href="/icons.svg#gi-shield"></use></svg>Your data stays yours</h2>
+    <ul>
+      <li>No login, no account, nothing to sign up for.</li>
+      <li>It runs on your PC, and your telemetry stays there.</li>
+      <li>On first launch it asks once: "Join the test round?" Yes shares your
+      match reports with the developer, to calibrate the coach. No means nothing
+      is ever uploaded.</li>
+      <li>Every file it writes is plain JSON you can open and read yourself.</li>
+      <li>The rest of the network traffic: public rank lookups and a daily
+      version check. That is the whole list.</li>
+    </ul>
+  </section>
+
+  <section class="steps">
+    <h2>Get started</h2>
+    <ol>
+      <li>Download the zip and unpack it anywhere.</li>
+      <li>Run the exe inside. Answer the test-round question however you like.</li>
+      <li>Play ranked. Your first matches build your baseline, then the coaching starts.</li>
+    </ol>
+  </section>
+
+  <footer>
+    <span>RL Live Tracker is in an open test phase. Found a bug, or advice that
+    feels off? Use the FEEDBACK button in the app.</span>
+    <span>Requires Windows 10/11 (64-bit) and Rocket League on PC.</span>
+    <span>A <a href="/">GITATO</a> project.</span>
+  </footer>
+
+</div>
+</body>
+</html>
