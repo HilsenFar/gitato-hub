@@ -46,9 +46,10 @@
   html { background: var(--st-night); }
   body {
     min-height: 100%;
+    /* Samme stadion som i appen (brugerens eget billede, 26/8) — eet brand. */
     background:
-      radial-gradient(1100px 560px at 50% -180px, rgba(56, 182, 255, .13), transparent 62%),
-      radial-gradient(800px 460px at 88% 30%, rgba(39, 217, 192, .05), transparent 58%),
+      linear-gradient(180deg, rgba(13, 20, 36, .72), rgba(9, 14, 25, .94) 64%),
+      url('/rl-tracker/skin-stadium.jpg') center -30px / cover no-repeat,
       var(--st-night);
     background-attachment: fixed;
     color: var(--st-ink-2);
@@ -352,7 +353,10 @@
       against your own baseline, and coaches you one focus at a time.</p>
 
       <div class="dl-row">
-        <a class="dl" href="https://github.com/HilsenFar/rl-tracker-releases/releases/latest/download/RL-Tracker-Portable.zip">
+        <!-- Zip'en bor PAA gitato.net (26/8): VirusTotal-tests af linket viser
+             saa DETTE domaene i toppen. Ved ny release: kopier ny zip hertil
+             (runbook trin 4). GitHub-releases er stadig update-kanalen. -->
+        <a class="dl" href="/rl-tracker/RL-Tracker-Portable.zip">
           <svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="M12 3v12m0 0l-5-5m5 5l5-5M4 21h16" />
           </svg>
