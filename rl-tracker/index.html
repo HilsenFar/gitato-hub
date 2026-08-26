@@ -448,5 +448,18 @@
   </footer>
 
 </div>
+
+<script>
+/* Anonym download-tæller (26/8): Pages har ingen logs, så knappen pinger
+   collectoren ved klik — kun et tal, intet id, ingen cookies. Fire-and-forget:
+   fejler beacon'et, sker der intet med selve downloadet. */
+(function(){
+  var a = document.querySelector('a.dl');
+  if (!a) return;
+  a.addEventListener('click', function(){
+    try{ navigator.sendBeacon('https://collect.gitato.net/v1/dl', 'landing'); }catch(e){}
+  });
+})();
+</script>
 </body>
 </html>
