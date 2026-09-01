@@ -13,7 +13,18 @@
 <!-- GITATO Design System v2 (fonts + focus + base tokens) loads first;
      this page lays a "stadium night" skin on top of it. -->
 <link rel="stylesheet" href="/ds.css" />
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..125,500..900&display=swap" />
+<style>
+  /* Archivo self-hostes (27/8): samme fil som appen skiber, saa landing,
+     portal, rapporter og tracker deler EEN skrift. Google Fonts er ude —
+     een tredjeparts-forespoergsel faerre paa en side, hvis hele budskab er
+     at data bliver hos brugeren. Aksen er den maalte: wdth 62-125 (Googles
+     udsnit stoppede ved 75 og smed den smalle display-ende vaek). */
+  @font-face{
+    font-family:'Archivo';
+    src:url('/rl-tracker/archivo-var.woff2') format('woff2');
+    font-weight:100 900; font-stretch:62% 125%; font-style:normal; font-display:swap;
+  }
+  </style>
 <style>
   /* ═══ STADIUM NIGHT — landing skin ═══
      The app itself keeps the machined DS look; this page is the one
@@ -36,9 +47,18 @@
     --st-on-line:  #072019;
     --st-edge:   rgba(184, 199, 224, .13);
     --st-r:      12px;
-    --f-disp: 'Archivo', 'Chakra Petch', sans-serif;
-    --f-ui:   'Chakra Petch', sans-serif;
-    --f-body: 'Barlow', sans-serif;
+    /* EEN familie baerer alle tre roller. Foer pegede --f-ui paa Chakra Petch
+       og --f-body paa Barlow — og ingen af dem blev nogensinde indlaest, saa
+       to tredjedele af siden stod i browserens standard-sans. */
+    --f-disp: 'Archivo', 'Segoe UI', system-ui, sans-serif;
+    --f-ui:   'Archivo', 'Segoe UI', system-ui, sans-serif;
+    --f-body: 'Archivo', 'Segoe UI', system-ui, sans-serif;
+    --st-cut: 13px;
+    --st-chamfer:
+      inset 0 1px 0 rgba(196,224,255,.24),
+      inset 1px 0 0 rgba(196,224,255,.11),
+      inset -1px 0 0 rgba(0,0,0,.38),
+      inset 0 -1px 0 rgba(0,0,0,.60);
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -48,7 +68,8 @@
     min-height: 100%;
     /* Samme stadion som i appen (brugerens eget billede, 26/8) — eet brand. */
     background:
-      linear-gradient(180deg, rgba(13, 20, 36, .72), rgba(9, 14, 25, .94) 64%),
+      radial-gradient(120% 58% at 50% -8%, rgba(120,160,215,.16), transparent 62%),
+      linear-gradient(180deg, rgba(10, 16, 30, .58), rgba(6, 10, 19, .95) 62%),
       url('/rl-tracker/skin-stadium.jpg') center -30px / cover no-repeat,
       var(--st-night);
     background-attachment: fixed;
@@ -161,12 +182,15 @@
   /* ── The example debrief card: the product, shown as itself ── */
   .debrief {
     position: relative; z-index: 1;
-    background: linear-gradient(180deg, var(--st-deck-2), var(--st-deck));
+    background:
+      linear-gradient(187deg, rgba(255,255,255,.06) 0%, rgba(255,255,255,.01) 34%, rgba(0,0,0,.07) 58%, rgba(190,220,255,.03) 100%),
+      linear-gradient(163deg, #22314F 0%, #1A2743 46%, #0D1729 100%);
     border: 1px solid var(--st-edge);
-    border-radius: var(--st-r);
+    border-radius: 3px var(--st-cut) 3px 3px;
     padding: 24px 24px 22px;
-    box-shadow: 0 18px 44px -18px rgba(0, 0, 0, .65);
+    box-shadow: var(--st-chamfer), 0 18px 44px -18px rgba(0, 0, 0, .75);
   }
+  @supports (corner-shape: bevel){ .debrief { corner-shape: round bevel round round; } }
   .debrief .tag {
     display: inline-block;
     font-family: var(--f-ui); font-size: 10.5px; font-weight: 700;
@@ -227,12 +251,18 @@
     display: grid; gap: 16px;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   }
+  /* Fraeset plade, samme hus-hjoerne som i appen: eet skaaret hjoerne oeverst
+     til hoejre, oplyst 1 px chamfer paa de kanter der vender mod lyset. */
   .card {
-    background: var(--st-deck);
+    background:
+      linear-gradient(187deg, rgba(255,255,255,.05) 0%, rgba(255,255,255,.01) 34%, rgba(0,0,0,.06) 58%, rgba(190,220,255,.02) 100%),
+      linear-gradient(163deg, #1E2B47 0%, #172440 44%, #0C1526 100%);
     border: 1px solid var(--st-edge);
-    border-radius: var(--st-r);
+    border-radius: 3px var(--st-cut) 3px 3px;
     padding: 24px;
+    box-shadow: var(--st-chamfer), 0 1px 0 rgba(0,0,0,.85), 0 10px 24px -12px rgba(0,0,0,.6);
   }
+  @supports (corner-shape: bevel){ .card { corner-shape: round bevel round round; } }
   .card h2, .privacy h2, .steps h2 {
     display: flex; align-items: center; gap: 10px;
     font-family: var(--f-ui); font-size: 13.5px; font-weight: 700;
@@ -247,11 +277,15 @@
   /* ── Privacy ── */
   .privacy {
     margin-top: 16px;
-    background: var(--st-deck);
+    background:
+      linear-gradient(187deg, rgba(255,255,255,.05) 0%, rgba(255,255,255,.01) 34%, rgba(0,0,0,.06) 58%, rgba(190,220,255,.02) 100%),
+      linear-gradient(163deg, #1E2B47 0%, #172440 44%, #0C1526 100%);
     border: 1px solid var(--st-edge);
-    border-radius: var(--st-r);
+    border-radius: 3px var(--st-cut) 3px 3px;
     padding: 26px;
+    box-shadow: var(--st-chamfer), 0 1px 0 rgba(0,0,0,.85), 0 10px 24px -12px rgba(0,0,0,.6);
   }
+  @supports (corner-shape: bevel){ .privacy { corner-shape: round bevel round round; } }
   .privacy ul { list-style: none; max-width: 74ch; }
   .privacy li { position: relative; padding: 7px 0 7px 24px; font-size: 15px; }
   .privacy li::before {
