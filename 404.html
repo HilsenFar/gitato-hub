@@ -11,6 +11,9 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<!-- Same URL as the @import in ds.css, so the font CSS is fetched in parallel
+     with ds.css instead of after it (the @import then hits the cache). -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;800;900&amp;family=Chakra+Petch:wght@500;600;700&amp;family=Barlow:wght@400;500;600;700&amp;display=swap" />
 <!-- GITATO Design System v2 — must load before this page's own styles.
      Absolute path: a 404 is served for /any/depth/at/all, so a relative
      href would resolve against the missing URL and 404 as well. -->
@@ -135,6 +138,9 @@
       <a href="https://frequencypilot.gitato.net">Frequency-Pilot</a>
       <a href="https://addson.gitato.net">AddSon</a>
       <a href="https://mediestudio.gitato.net">MedieStudio</a>
+      <a href="https://rltracker.gitato.net">RL Live Tracker</a>
+      <a href="https://rankoverlay.gitato.net">RL Rank Overlay</a>
+      <a href="https://roll.gitato.net">RL Roll</a>
     </nav>
   </div>
 

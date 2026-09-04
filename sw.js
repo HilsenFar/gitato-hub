@@ -1,6 +1,6 @@
 // GITATO hub service worker — tiny site, network first with cache fallback.
 // Bump VERSION when the site changes.
-const VERSION = 'gitato-v17';
+const VERSION = 'gitato-v18';
 
 const SHELL = [
   './',
@@ -14,7 +14,12 @@ const SHELL = [
   './assets/frequencypilot-cover.png',
   './assets/addson-cover.png',
   './assets/mediestudio-cover.png',
+  './assets/command-cover.png',
+  './assets/rltracker-cover.png',
+  './assets/rankoverlay-cover.png',
+  './assets/roll-cover.png',
   './assets/icons/icon-192.png',
+  './assets/icons/icon-180.png',
   './assets/icons/icon-512.png',
 ];
 
@@ -33,7 +38,9 @@ self.addEventListener('activate', (e) => {
   );
 });
 
-const isShellNav = (url) => url.pathname === '/' || url.pathname.endsWith('/index.html');
+// Exact match only: /rl-tracker/index.html and /rts/index.html are real pages
+// on this origin and must never be stored as the hub shell.
+const isShellNav = (url) => url.pathname === '/' || url.pathname === '/index.html';
 
 self.addEventListener('fetch', (e) => {
   const req = e.request;
@@ -51,6 +58,9 @@ self.addEventListener('fetch', (e) => {
         }
         return res;
       })
-      .catch(() => caches.match(nav ? './index.html' : req)),
+      // offline: only the hub shell may answer a navigation; a deep link
+      // (/rl-tracker/, /rts/) gets the browser's own offline page instead of
+      // the hub html with its relative paths broken
+      .catch(() => (nav && !isShellNav(url)) ? Response.error() : caches.match(nav ? './index.html' : req)),
   );
 });
