@@ -1,7 +1,7 @@
 {
   "name": "GITATO — projects & experiments",
   "short_name": "GITATO",
-  "description": "Projects & experiments by HilsenFar — games, music tools and more.",
+  "description": "Browser games, Rocket League tools and small apps by HilsenFar. All free.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

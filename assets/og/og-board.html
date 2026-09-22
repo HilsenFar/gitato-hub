@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<!-- Source for gitato-og.jpg (1200x630 share card). Not linked from the site.
+     Re-render: serve the hub root, open /assets/og/og-board.html at 1200x630,
+     screenshot to PNG, then save as gitato-og.jpg (quality 88).
+     The covers are the same WebP files the page uses. -->
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<link rel="stylesheet" href="../../fonts.css" />
+<link rel="stylesheet" href="../../ds.css" />
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 1200px; height: 630px; overflow: hidden; background: var(--gt-sub-0); }
+  body {
+    position: relative;
+    background:
+      radial-gradient(900px 520px at 78% -10%, rgba(124, 108, 255, .22), transparent 62%),
+      radial-gradient(700px 480px at 0% 110%, rgba(255, 43, 78, .10), transparent 60%),
+      var(--gt-sub-0);
+    font-family: var(--gt-font-body);
+  }
+  .grain { position: absolute; inset: 0; background-image: var(--gt-grain); background-size: 140px;
+           opacity: .12; mix-blend-mode: overlay; z-index: 5; pointer-events: none; }
+  .copy { position: absolute; left: 72px; top: 118px; z-index: 6; }
+  .copy::before { content: ""; position: absolute; left: -24px; top: 6px; bottom: 6px; width: 4px;
+    background: linear-gradient(180deg, var(--gt-sig), var(--gt-sig-dk) 60%, transparent);
+    box-shadow: 0 0 18px -2px var(--gt-sig); }
+  .eyebrow { font-family: var(--gt-font-ui); font-weight: 600; font-size: 15px; letter-spacing: .30em;
+             text-transform: uppercase; color: var(--gt-ink-3); }
+  .logo { margin-top: 14px; font-family: var(--gt-font-logo); font-weight: 900; font-size: 112px;
+    letter-spacing: .12em; line-height: 1;
+    background: linear-gradient(180deg, #fff 0%, var(--gt-ink-1) 32%, #8A94A6 74%, #5C6575 100%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    filter: drop-shadow(0 3px 0 rgba(0,0,0,.75)); }
+  .tag { margin-top: 18px; font-family: var(--gt-font-ui); font-weight: 600; font-size: 17px;
+         letter-spacing: .30em; text-transform: uppercase; color: var(--gt-violet-ink); }
+  .shelves { margin-top: 44px; display: flex; gap: 12px; }
+  .shelf { padding: 10px 16px; font-family: var(--gt-font-ui); font-weight: 700; font-size: 16px;
+    letter-spacing: .13em; text-transform: uppercase; color: var(--gt-ink-1);
+    background: linear-gradient(180deg, var(--gt-pl-2), var(--gt-pl-1));
+    border: 1px solid var(--gt-edge-bezel); border-radius: 3px; box-shadow: var(--gt-e-2); }
+  .shelf b { color: var(--gt-ink-on-lit); background: var(--gt-violet); padding: 1px 6px; margin-right: 8px; border-radius: 2px; }
+  .wall { position: absolute; right: -90px; top: 40px; z-index: 2;
+    display: grid; grid-template-columns: repeat(2, 300px); gap: 16px;
+    transform: perspective(1400px) rotateY(-22deg) rotateX(6deg); transform-origin: right center; }
+  .wall img { display: block; width: 300px; height: 169px; object-fit: cover; border-radius: 5px;
+    border: 1px solid var(--gt-edge-bezel); box-shadow: 0 18px 40px -16px #000, inset 0 1px 0 var(--gt-lip); }
+  .fade { position: absolute; inset: 0; z-index: 4; pointer-events: none;
+    background: linear-gradient(90deg, var(--gt-sub-0) 0%, rgba(10,12,16,.85) 42%, rgba(10,12,16,.1) 70%, rgba(10,12,16,0) 100%); }
+  .url { position: absolute; left: 72px; bottom: 44px; z-index: 6; font-family: var(--gt-font-mono);
+         font-size: 16px; letter-spacing: .14em; color: var(--gt-ink-3); }
+  .hz { position: absolute; left: 0; right: 0; bottom: 0; height: 10px; z-index: 6; background: var(--gt-hz-inert); opacity: .7; }
+</style>
+</head>
+<body data-gt="hub">
+  <div class="wall">
+    <img src="../covers/rltracker-960.webp" alt="">
+    <img src="../covers/command-960.webp" alt="">
+    <img src="../covers/rankoverlay-960.webp" alt="">
+    <img src="../covers/sprunkiverse-960.webp" alt="">
+    <img src="../covers/roll-960.webp" alt="">
+    <img src="../covers/beatsurfer-960.webp" alt="">
+  </div>
+  <div class="fade"></div>
+  <div class="copy">
+    <p class="eyebrow">gitato.net</p>
+    <p class="logo">GITATO</p>
+    <p class="tag">Projects &amp; experiments by HilsenFar</p>
+    <div class="shelves">
+      <span class="shelf"><b>01</b>Rocket League</span>
+      <span class="shelf"><b>02</b>Games</span>
+      <span class="shelf"><b>03</b>Tools</span>
+    </div>
+  </div>
+  <p class="url">FREE · BROWSER · PHONE · WINDOWS</p>
+  <div class="grain"></div>
+  <div class="hz"></div>
+</body>
+</html>

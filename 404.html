@@ -9,14 +9,11 @@
 <link rel="icon" type="image/png" href="/assets/icons/icon-192.png" />
 <link rel="apple-touch-icon" href="/assets/icons/icon-180.png" />
 
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<!-- Same URL as the @import in ds.css, so the font CSS is fetched in parallel
-     with ds.css instead of after it (the @import then hits the cache). -->
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;800;900&amp;family=Chakra+Petch:wght@500;600;700&amp;family=Barlow:wght@400;500;600;700&amp;display=swap" />
-<!-- GITATO Design System v2 — must load before this page's own styles.
-     Absolute path: a 404 is served for /any/depth/at/all, so a relative
-     href would resolve against the missing URL and 404 as well. -->
+<!-- Self-hosted fonts + GITATO Design System v2.1, both before this page's own
+     styles. Absolute paths: a 404 is served for /any/depth/at/all, so a
+     relative href would resolve against the missing URL and 404 as well.
+     fonts.css resolves its own url()s against /fonts.css, so they hold too. -->
+<link rel="stylesheet" href="/fonts.css" />
 <link rel="stylesheet" href="/ds.css" />
 <style>
   /* Until now gitato.net served GitHub Pages' own 404 — a light-grey Helvetica
@@ -131,16 +128,16 @@
     </div>
 
     <nav class="links" aria-label="Projects">
+      <a href="https://rltracker.gitato.net">RL Live Tracker</a>
+      <a href="https://rankoverlay.gitato.net">RL Rank Overlay</a>
+      <a href="https://roll.gitato.net">RL Roll</a>
       <a href="https://game.gitato.net/rts/">Gitato Command</a>
       <a href="https://game.gitato.net">Gitato</a>
       <a href="https://spil.gitato.net">Sprunkiverse</a>
       <a href="https://beatsurfer.gitato.net">BeatSurfer</a>
-      <a href="https://frequencypilot.gitato.net">Frequency-Pilot</a>
+      <a href="https://frequencypilot.gitato.net">Frequency Pilot</a>
       <a href="https://addson.gitato.net">AddSon</a>
       <a href="https://mediestudio.gitato.net">MedieStudio</a>
-      <a href="https://rltracker.gitato.net">RL Live Tracker</a>
-      <a href="https://rankoverlay.gitato.net">RL Rank Overlay</a>
-      <a href="https://roll.gitato.net">RL Roll</a>
     </nav>
   </div>
 

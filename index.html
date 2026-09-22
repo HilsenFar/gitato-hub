@@ -3,14 +3,19 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>GITATO — projects & experiments</title>
-<meta property="og:title" content="GITATO" />
-<meta property="og:description" content="Projects & experiments by HilsenFar" />
-<meta name="description" content="Projects & experiments by HilsenFar — games, music tools and more." />
-<meta property="og:url" content="https://gitato.net/" />
+<title>GITATO — browser games, Rocket League tools and small apps</title>
+<meta name="description" content="Projects by HilsenFar: browser games you can play on a phone, free Rocket League tools for PC, and a few small apps. All free." />
+<link rel="canonical" href="https://gitato.net/" />
 <meta property="og:type" content="website" />
+<meta property="og:url" content="https://gitato.net/" />
+<meta property="og:site_name" content="GITATO" />
+<meta property="og:title" content="GITATO — projects & experiments by HilsenFar" />
+<meta property="og:description" content="Browser games, free Rocket League tools and a few small apps. All free." />
+<meta property="og:image" content="https://gitato.net/assets/og/gitato-og.jpg" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:alt" content="The GITATO logotype over a board of project covers" />
 <meta name="twitter:card" content="summary_large_image" />
-<meta property="og:image" content="https://gitato.net/assets/sprunkiverse-cover.png" />
 <meta name="theme-color" content="#0A0C10" />
 <link rel="manifest" href="manifest.webmanifest" />
 <link rel="icon" type="image/png" href="assets/icons/icon-192.png" />
@@ -20,45 +25,41 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black" />
 <meta name="apple-mobile-web-app-title" content="GITATO" />
 
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<!-- Same URL as the @import in ds.css, so the font CSS is fetched in parallel
-     with ds.css instead of after it (the @import then hits the cache). -->
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;800;900&amp;family=Chakra+Petch:wght@500;600;700&amp;family=Barlow:wght@400;500;600;700&amp;display=swap" />
-<!-- GITATO Design System v2 — must load before this page's own styles -->
+<!-- Fonts are self-hosted (DS v2.1). The two faces above the fold are preloaded
+     so the logotype and the headings do not swap in late. -->
+<link rel="preload" href="fonts/orbitron-800.woff2" as="font" type="font/woff2" crossorigin />
+<link rel="preload" href="fonts/chakra-petch-700.woff2" as="font" type="font/woff2" crossorigin />
+<link rel="preconnect" href="https://api.github.com" crossorigin />
+<link rel="stylesheet" href="fonts.css" />
+<!-- GITATO Design System v2.1 — must load before this page's own styles -->
 <link rel="stylesheet" href="ds.css" />
 <style>
   /* ═══════════════════════════════════════════════════════════════════════
-     HUB — surface layer on top of ds.css.
+     HUB v3 — surface layer on top of ds.css.
      Everything shared (substrate, ink, edges, radii, motion, type, focus)
-     comes from ds.css. Only what is genuinely unique to the portal lives here.
+     comes from ds.css. Only what is unique to the portal lives here.
+
+     What v3 changed, and why:
+     - Three shelves (Rocket League / Games / Tools) instead of ten equal
+       cards. A 6-column grid lets each shelf have its own rhythm: one
+       feature + two, two + three, two. No orphan card on any row.
+     - Every card says where it runs (browser / phone / Windows). Most
+       visitors arrive on a phone and could not tell which projects work there.
+     - Each card is lit in its own product's signal on hover, so the hub
+       reads as a wall of signs rather than ten copies of one violet box.
+     - Covers are WebP at 480/960/1280 w (was 5 MB of PNG, now ~0.2 MB).
      ═══════════════════════════════════════════════════════════════════════ */
   :root {
-    /* Alpha washes of --gt-violet / --gt-red. ds.css carries no channel tokens,
-       so these two are the one thing that cannot be written as a token. */
+    /* Alpha washes of --gt-violet / --gt-red. ds.css carries no channel
+       tokens, so these two cannot be written as a token. */
     --hub-wash-1: rgba(124, 108, 255, .14);
     --hub-wash-2: rgba(255,  43,  78, .07);
-    --hub-card-min: 300px;
-  }
-
-  /* ds.css declares --gt-bloom-* on :root as `… var(--gt-sig)`. A custom
-     property's var() references are substituted where the property is DECLARED,
-     so those three tokens are frozen with :root's --gt-sig (cyan) and then
-     inherit that value everywhere — the theme on <body data-gt="hub"> comes too
-     late to affect them. Measured: every bloom on this page rendered #19E0FF.
-     Re-declaring them here, where --gt-sig is already violet, makes them
-     resolve against the hub's own signal. */
-  body {
-    --gt-bloom-sm: 0 0 14px -4px var(--gt-sig);
-    --gt-bloom:    0 0 22px -4px var(--gt-sig), 0 0 52px -18px var(--gt-sig);
-    --gt-bloom-lg: 0 0 30px -4px var(--gt-sig), 0 0 90px -22px var(--gt-sig);
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
-
-  html { background: var(--gt-sub-0); }
+  html { background: var(--gt-sub-0); scroll-behavior: smooth; scroll-padding-top: 16px; }
   body {
-    min-height: 100%;
+    min-height: 100vh;
     background:
       radial-gradient(1200px 700px at 72% -14%, var(--hub-wash-1), transparent 62%),
       radial-gradient(900px 620px at 6% 108%, var(--hub-wash-2), transparent 58%),
@@ -70,130 +71,231 @@
     line-height: var(--gt-lh-body);
     -webkit-font-smoothing: antialiased;
   }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
 
   .wrap {
     position: relative;
     z-index: 2;                     /* above .gt-vignette (0) and .gt-grain (1) */
     max-width: var(--gt-wrap);
     margin: 0 auto;
-    padding: 0 var(--gt-s-5) var(--gt-s-8);
+    padding: 0 var(--gt-s-5);
   }
+
+  .skip {
+    position: absolute; left: var(--gt-s-4); top: -60px; z-index: 10;
+    padding: 10px 14px;
+    font-family: var(--gt-font-ui); font-size: var(--gt-t-sm); font-weight: 700;
+    letter-spacing: var(--gt-track-btn); text-transform: uppercase;
+    color: var(--gt-ink-on-lit); background: var(--gt-sig);
+    border-radius: var(--gt-r-2); text-decoration: none;
+  }
+  .skip:focus-visible { top: var(--gt-s-4); outline: none; box-shadow: var(--gt-focus-ring); }
+
+  /* ── Top bar ────────────────────────────────────────────────────────────── */
+  .top {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: var(--gt-s-4);
+    padding-top: var(--gt-s-5);
+  }
+  .top__mark {
+    display: inline-flex; align-items: center; gap: var(--gt-s-2);
+    font-family: var(--gt-font-ui); font-size: var(--gt-t-xs); font-weight: 600;
+    letter-spacing: var(--gt-track-tag); text-transform: uppercase;
+    color: var(--gt-ink-3);
+  }
+  .top__mark .gi { color: var(--gt-sig); }
+  .top nav { display: flex; flex-wrap: wrap; gap: 2px; }
+  .top nav a {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 8px 10px;
+    font-family: var(--gt-font-ui); font-size: var(--gt-t-xs); font-weight: 600;
+    letter-spacing: var(--gt-track-label); text-transform: uppercase;
+    color: var(--gt-ink-2); text-decoration: none;
+    border-radius: var(--gt-r-2);
+    transition: color var(--gt-d-2) var(--gt-ease-soft), background var(--gt-d-2) var(--gt-ease-soft);
+  }
+  .top nav a:hover { color: var(--gt-ink-1); background: var(--gt-pl-2); }
+  .top nav a:focus-visible { outline: none; box-shadow: var(--gt-focus-ring); }
 
   /* ── Hero ─────────────────────────────────────────────────────────────────
      The wordmark is machined steel, not neon: a top-lit fill and a cut shadow.
-     The only emission in the hero is the vertical rule on the left edge —
-     a lit face, per the model, rather than a glow smeared under the type. */
+     The only emission in the hero is the rule on the left edge. */
   .hero {
-    position: relative;
-    padding: clamp(52px, 8.5vw, 100px) 0 clamp(34px, 5vw, 56px) var(--gt-s-5);
+    display: grid;
+    grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+    gap: clamp(28px, 5vw, 64px);
+    align-items: end;
+    padding: clamp(40px, 7vw, 84px) 0 clamp(28px, 4vw, 44px);
   }
-  .hero::before {
+  .hero__copy { position: relative; padding-left: var(--gt-s-5); container-type: inline-size; }
+  .hero__copy::before {
     content: "";
-    position: absolute;
-    left: 0;
-    top: clamp(52px, 8.5vw, 100px);
-    bottom: clamp(34px, 5vw, 56px);
+    position: absolute; left: 0; top: 4px; bottom: 4px;
     width: 3px;
     background: linear-gradient(180deg, var(--gt-sig) 0%, var(--gt-sig-dk) 55%, transparent 100%);
     box-shadow: var(--gt-bloom-sm);
   }
-
-  .hero__eyebrow {
-    display: flex;
-    align-items: center;
-    gap: var(--gt-s-2);
-    font-family: var(--gt-font-ui);
-    font-size: var(--gt-t-xs);
-    font-weight: 600;
-    letter-spacing: var(--gt-track-tag);
-    text-transform: uppercase;
-    color: var(--gt-ink-3);
-  }
-  .hero__eyebrow .gi { color: var(--gt-sig); }
-  .hero__hair {
-    flex: 1 1 auto;
-    max-width: 240px;
-    height: 1px;
-    background: linear-gradient(90deg, var(--gt-edge-hair), transparent);
-  }
-
+  /* Sized against its own column (cqi), not the viewport: at 1440px the DS
+     hero size is 118px and GITATO at .12em tracking is ~4.7em wide, which ran
+     the O off the column's edge. 19cqi keeps the word inside at every width. */
   .hero__logo {
-    margin-top: var(--gt-s-4);
-    font-size: var(--gt-t-hero);
-    background: linear-gradient(180deg,
-      #FFFFFF 0%,
-      var(--gt-ink-1) 32%,
-      #8A94A6 74%,
-      #5C6575 100%);
+    font-size: min(var(--gt-t-hero), 19cqi);
+    background: linear-gradient(180deg, #FFFFFF 0%, var(--gt-ink-1) 32%, #8A94A6 74%, #5C6575 100%);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
     filter: drop-shadow(0 2px 0 rgba(0, 0, 0, .7));
   }
   .hero__tagline { margin-top: var(--gt-s-3); }
+  .hero__lead {
+    margin-top: var(--gt-s-5);
+    max-width: 46ch;
+    font-size: var(--gt-t-md);
+    line-height: 1.55;
+    color: var(--gt-ink-2);
+  }
 
-  .hero__stats {
-    display: flex;
-    flex-wrap: wrap;
+  .facts {
+    display: flex; flex-wrap: wrap;
     margin-top: var(--gt-s-6);
     border-top: 1px solid var(--gt-edge-hair);
   }
-  .hero__stat {
-    display: flex;
-    flex-direction: column-reverse;   /* value above label, dt still first in DOM */
+  .fact {
+    display: flex; flex-direction: column-reverse;   /* value above label, dt first in DOM */
     gap: 2px;
-    padding: var(--gt-s-3) var(--gt-s-6) var(--gt-s-3) 0;
+    padding: var(--gt-s-3) var(--gt-s-5) 0 0;
   }
-  .hero__stat + .hero__stat {
-    padding-left: var(--gt-s-6);
-    border-left: 1px solid var(--gt-edge-hair);
-  }
-  .hero__stat dd {
-    font-family: var(--gt-font-ui);
-    font-size: var(--gt-t-xl);
-    font-weight: 700;
-    line-height: 1;
-    color: var(--gt-ink-1);
+  .fact + .fact { padding-left: var(--gt-s-5); border-left: 1px solid var(--gt-edge-hair); }
+  .fact dd {
+    font-family: var(--gt-font-ui); font-size: var(--gt-t-xl); font-weight: 700;
+    line-height: 1; color: var(--gt-ink-1);
   }
 
-  /* ── Section head ─────────────────────────────────────────────────────── */
-  .section-head {
-    display: flex;
+  /* ── Release board ────────────────────────────────────────────────────────
+     A departures board, not a card: sunken well, mono serials, one lit row
+     marker per product in that product's own signal. It is the one live thing
+     on the page — it reads GitHub, so it can never claim an update that did
+     not happen. */
+  .board {
+    align-self: stretch;
+    display: flex; flex-direction: column;
+    background: var(--gt-hud);
+    border: 1px solid var(--gt-edge-bezel);
+    border-radius: var(--gt-r-3);
+    box-shadow: var(--gt-e-3);
+    overflow: hidden;
+  }
+  .board__head, .board__foot {
+    display: flex; align-items: center; justify-content: space-between; gap: var(--gt-s-3);
+    padding: var(--gt-s-3) var(--gt-s-4);
+    background: linear-gradient(180deg, var(--gt-pl-2), var(--gt-pl-1));
+  }
+  .board__head { border-bottom: 1px solid var(--gt-edge-hair); }
+  .board__foot { border-top: 1px solid var(--gt-edge-hair); margin-top: auto; }
+  .board__head h2 { color: var(--gt-ink-1); }
+  .board__state {
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .board__state::before {
+    content: ""; width: 7px; height: 7px; border-radius: 50%;
+    background: var(--gt-ink-4);
+  }
+  .board[data-state="live"] .board__state::before { background: var(--gt-ok); box-shadow: 0 0 8px var(--gt-ok); }
+  .board ol { list-style: none; }
+  .board li + li { border-top: 1px solid rgba(51, 60, 75, .55); }
+  .board a {
+    display: grid;
+    grid-template-columns: 10px minmax(0, 1fr) auto;
     align-items: center;
-    gap: var(--gt-s-4);
-    margin-top: clamp(28px, 4vw, 44px);
+    gap: var(--gt-s-3);
+    padding: 9px var(--gt-s-4);
+    color: var(--gt-ink-1); text-decoration: none;
+    transition: background var(--gt-d-2) var(--gt-ease-soft);
   }
-  .section-head h2 { color: var(--gt-ink-1); white-space: nowrap; }
-  .section-head__rule { flex: 1 1 auto; height: 1px; background: var(--gt-edge-hair); }
-  .section-head__hz { width: 88px; flex: none; border-radius: var(--gt-r-1); }
+  .board a:hover { background: var(--gt-pl-1); }
+  .board a:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--gt-focus-ink); }
+  .board__dot {
+    width: 10px; height: 10px; border-radius: var(--gt-r-1);
+    background: var(--gt-sig);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .4), 0 0 8px -2px var(--gt-sig);
+  }
+  .board__name {
+    font-family: var(--gt-font-ui); font-size: var(--gt-t-sm); font-weight: 700;
+    letter-spacing: .06em; text-transform: uppercase;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .board__name small {
+    margin-left: 6px;
+    font-family: var(--gt-font-mono); font-size: var(--gt-t-xs); font-weight: 600;
+    letter-spacing: 0; text-transform: none; color: var(--gt-ink-3);
+  }
+  .board time { font-size: var(--gt-t-xs); white-space: nowrap; }
 
-  /* ── Card grid ────────────────────────────────────────────────────────── */
+  /* ── Filter strip ─────────────────────────────────────────────────────── */
+  .filters {
+    display: flex; flex-wrap: wrap; align-items: center; gap: var(--gt-s-2);
+    margin-top: var(--gt-s-6);
+    padding: var(--gt-s-3) 0;
+    border-top: 1px solid var(--gt-edge-hair);
+    border-bottom: 1px solid var(--gt-edge-hair);
+  }
+  .filters__label { margin-right: var(--gt-s-2); }
+  .filters button {
+    cursor: pointer;
+    transition: background var(--gt-d-2) var(--gt-ease-soft), color var(--gt-d-2) var(--gt-ease-soft),
+                border-color var(--gt-d-2) var(--gt-ease-soft);
+  }
+  .filters button:hover { border-color: var(--gt-edge-bezel); color: var(--gt-ink-1); }
+  .filters button[aria-pressed="true"] {
+    color: var(--gt-ink-on-lit); background: var(--gt-sig); border-color: var(--gt-sig-dk);
+  }
+  .filters__count { margin-left: auto; }
+
+  /* ── Shelves ──────────────────────────────────────────────────────────── */
+  .shelf { margin-top: clamp(34px, 5vw, 56px); }
+  .shelf[hidden] { display: none; }
+  .shelf__head {
+    display: flex; align-items: baseline; gap: var(--gt-s-4);
+    flex-wrap: wrap;
+  }
+  .shelf__head h2 { color: var(--gt-ink-1); white-space: nowrap; }
+  .shelf__head .gt-serial { color: var(--gt-sig-ink); }
+  .shelf__rule { flex: 1 1 80px; height: 1px; background: var(--gt-edge-hair); align-self: center; }
+  .shelf__blurb { margin-top: var(--gt-s-2); max-width: 70ch; color: var(--gt-ink-3); font-size: var(--gt-t-sm); }
+
   .grid {
     margin-top: var(--gt-s-5);
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(var(--hub-card-min), 1fr));
+    grid-template-columns: repeat(6, minmax(0, 1fr));
     gap: var(--gt-s-5);
   }
+  .card { grid-column: span 2; }
+  .card[hidden] { display: none; }
+  .card--half { grid-column: span 3; }
+  .card--feature { grid-column: 1 / -1; }
+  /* While a filter is on, the shelves' hand-set rhythm no longer adds up —
+     every card falls back to a plain third. */
+  .is-filtered .card, .is-filtered .card--half { grid-column: span 2; }
+  .is-filtered .card--feature { grid-column: span 2; }
 
-  /* .card sits on .gt-card, which supplies frame, elevation, hover and focus. */
+  /* .card sits on .gt-card, which supplies frame, elevation, lift and focus. */
   .card {
     display: grid;
     grid-template-rows: auto 1fr;
     background: var(--gt-pl-1);       /* flat, so the media scrim can land on it */
     isolation: isolate;
   }
-  /* Focus keeps the card's own depth instead of replacing it with a bare ring. */
   .card:focus-visible {
     outline: none;
     box-shadow: var(--gt-focus-ring), var(--gt-e-3), var(--gt-bloom-sm);
     border-color: var(--gt-sig);
   }
 
-  /* Media: cover, scrim into the body, a lit bottom edge, serial + corner mark */
-  .media { position: relative; }
+  /* Media: cover, scrim into the body, a lit bottom edge, index + corner mark */
+  .media { position: relative; overflow: hidden; }
   .media img {
     display: block;
-    width: 100%;
+    width: 100%; height: auto;
     aspect-ratio: 16 / 9;
     object-fit: cover;
     filter: brightness(.86) saturate(.92) contrast(1.03);
@@ -202,368 +304,551 @@
   }
   .media::after {
     content: "";
-    position: absolute;
-    inset: 0;
+    position: absolute; inset: 0;
     pointer-events: none;
-    background: linear-gradient(180deg,
-      rgba(6, 7, 10, 0) 36%,
-      rgba(6, 7, 10, .45) 72%,
-      var(--gt-pl-1) 100%);
+    background: linear-gradient(180deg, rgba(6, 7, 10, 0) 40%, rgba(6, 7, 10, .45) 76%, var(--gt-pl-1) 100%);
   }
   .media__edge {
-    position: absolute;
-    left: 0; right: 0; bottom: 0;
-    height: 2px;
-    z-index: 2;
+    position: absolute; left: 0; right: 0; bottom: 0;
+    height: 2px; z-index: 2;
     background: var(--gt-sig-dk);
-    transition: background var(--gt-d-3) var(--gt-ease-soft),
-                box-shadow var(--gt-d-3) var(--gt-ease-out);
+    transition: background var(--gt-d-3) var(--gt-ease-soft), box-shadow var(--gt-d-3) var(--gt-ease-out);
   }
-  /* Bottom left, over the scrim. At the top left the badge sat on the cover's
-     own title (card 03 read "ASON'S SPRUNKIVERSE"). The +2px clears .media__edge. */
-  .idx {
-    position: absolute;
-    bottom: calc(var(--gt-s-3) + 2px);
-    left: var(--gt-s-3);
-    z-index: 3;
-  }
+  /* Bottom left, over the scrim: at the top left it sat on the covers' own
+     titles. The +2px clears .media__edge. */
+  .idx { position: absolute; bottom: calc(var(--gt-s-3) + 2px); left: var(--gt-s-3); z-index: 3; }
   .corner {
-    position: absolute;
-    top: var(--gt-s-3);
-    right: var(--gt-s-3);
-    z-index: 2;
+    position: absolute; top: var(--gt-s-3); right: var(--gt-s-3); z-index: 2;
     width: 18px; height: 18px;
     color: var(--gt-ink-4);           /* inert glyph — ink-4 is legal here, never on text */
-    /* gi-corner is drawn as a TOP-LEFT bracket inside its 24-unit box. Placed at
-       the top right it faced the wrong way and floated ~25px off the corner;
-       mirroring both turns it the right way round and seats it at the edge. */
-    transform: scaleX(-1);
+    transform: scaleX(-1);            /* gi-corner is drawn as a top-LEFT bracket */
     transition: color var(--gt-d-3) var(--gt-ease-soft);
   }
-
   a.card:hover .media img,
-  a.card:focus-visible .media img { transform: scale(1.045); filter: none; }
+  a.card:focus-visible .media img { transform: scale(1.04); filter: none; }
   a.card:hover .media__edge,
   a.card:focus-visible .media__edge { background: var(--gt-sig); box-shadow: var(--gt-bloom-sm); }
   a.card:hover .corner,
   a.card:focus-visible .corner { color: var(--gt-sig); }
 
-  /* Body */
   .card .body {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
+    display: flex; flex-direction: column; align-items: flex-start;
     gap: var(--gt-s-2);
-    padding: var(--gt-s-5);
+    padding: var(--gt-s-4) var(--gt-s-5) var(--gt-s-5);
     background: linear-gradient(180deg, var(--gt-pl-1), var(--gt-sub-1));
   }
+  .runs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 2px; }
+  .runs .gt-chip { padding: 3px 8px; font-size: 10.5px; gap: 5px; }
+  .runs .gi { width: 12px; height: 12px; color: var(--gt-sig-ink); }
   .card h3 {
-    font-family: var(--gt-font-ui);
-    font-size: var(--gt-t-md);
-    font-weight: 700;
-    letter-spacing: var(--gt-track-head);
-    line-height: var(--gt-lh-head);
-    text-transform: uppercase;
-    color: var(--gt-ink-1);
+    font-family: var(--gt-font-ui); font-size: var(--gt-t-md); font-weight: 700;
+    letter-spacing: var(--gt-track-head); line-height: var(--gt-lh-head);
+    text-transform: uppercase; color: var(--gt-ink-1);
   }
-  .card p {
-    font-size: var(--gt-t-sm);
-    line-height: var(--gt-lh-body);
-    color: var(--gt-ink-2);
+  .card p { font-size: var(--gt-t-sm); line-height: var(--gt-lh-body); color: var(--gt-ink-2); }
+  .card__foot {
+    display: flex; align-items: center; flex-wrap: wrap; gap: var(--gt-s-2) var(--gt-s-3);
+    margin-top: auto;                 /* pins CTAs to a common baseline per row */
+    padding-top: var(--gt-s-2);
   }
+  .card__upd { font-size: var(--gt-t-xs); color: var(--gt-ink-3); }
+  .card__upd b { font-weight: 600; color: var(--gt-ink-2); font-family: var(--gt-font-mono); }
 
   /* CTA — a real plate. Quiet at rest, emissive when the card is engaged. */
-  .card .cta {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--gt-s-2);
-    margin-top: auto;                 /* pins CTAs to a common baseline per row */
+  .cta {
+    display: inline-flex; align-items: center; gap: var(--gt-s-2);
     padding: 9px 15px;
-    font-family: var(--gt-font-ui);
-    font-size: var(--gt-t-xs);
-    font-weight: 700;
-    letter-spacing: var(--gt-track-btn);
-    text-transform: uppercase;
+    font-family: var(--gt-font-ui); font-size: var(--gt-t-xs); font-weight: 700;
+    letter-spacing: var(--gt-track-btn); text-transform: uppercase;
     color: var(--gt-sig-ink);
     background: linear-gradient(180deg, var(--gt-pl-2), var(--gt-pl-1));
     border: 1px solid var(--gt-edge-bezel);
     border-radius: var(--gt-r-2);
     box-shadow: var(--gt-e-1);
-    transition: background var(--gt-d-2) var(--gt-ease-soft),
-                color      var(--gt-d-2) var(--gt-ease-soft),
-                border-color var(--gt-d-2) var(--gt-ease-soft),
-                box-shadow var(--gt-d-2) var(--gt-ease-out);
+    transition: background var(--gt-d-2) var(--gt-ease-soft), color var(--gt-d-2) var(--gt-ease-soft),
+                border-color var(--gt-d-2) var(--gt-ease-soft), box-shadow var(--gt-d-2) var(--gt-ease-out);
   }
   a.card:hover .cta,
   a.card:focus-visible .cta {
     color: var(--gt-ink-on-lit);      /* dark stencil on a lit face */
     background: var(--gt-sig);
     border-color: var(--gt-sig-dk);
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, .45),
-      inset 0 -1px 0 rgba(0, 0, 0, .3),
-      var(--gt-bloom-sm);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .45), inset 0 -1px 0 rgba(0, 0, 0, .3), var(--gt-bloom-sm);
   }
 
-  /* ── "Coming soon" — a stated condition, not a dimmer switch ──────────────
-     .gt-card--soon supplies the dashed frame, flat fill and ink-3 title.
-     Here it becomes an empty bay: a sunken well, an inert glyph, hazard tape
-     where the lit edge would be, and a CTA that does not pretend to be live. */
-  /* .card sets a flat --gt-pl-1 face for the scrim to land on, which also
-     overrode .gt-card--soon's darker fill (same specificity, later sheet).
-     Put the DS's own value back on the soon card. */
-  .card.soon { background: var(--gt-sub-1); }
-  .card.soon .thumb {
-    aspect-ratio: 16 / 9;
-    display: grid;
-    place-items: center;
-    background: var(--gt-void);
-    box-shadow: inset 0 2px 8px rgba(0, 0, 0, .8), inset 0 -1px 0 var(--gt-lip);
+  /* Feature card: cover left, copy right, and room for the three things the
+     product does. Only while the shelf is in its own rhythm. */
+  @media (min-width: 1000px) {
+    .card--feature:not(.is-filtered *) {
+      grid-template-rows: none;
+      grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr);
+    }
+    .card--feature:not(.is-filtered *) .media::after {
+      background: linear-gradient(90deg, rgba(6, 7, 10, 0) 58%, rgba(6, 7, 10, .5) 86%, var(--gt-pl-1) 100%);
+    }
+    /* The copy column sets the row height, so the cover is cropped to fit.
+       Anchor it left: every cover puts its title on the left third. */
+    .card--feature:not(.is-filtered *) .media img { height: 100%; object-position: 0% 50%; }
+    .card--feature:not(.is-filtered *) .body { padding: var(--gt-s-6) var(--gt-s-6) var(--gt-s-6) var(--gt-s-5); justify-content: center; }
+    .card--feature:not(.is-filtered *) h3 { font-size: var(--gt-t-xl); }
+    .card--feature:not(.is-filtered *) p { font-size: var(--gt-t-base); }
   }
-  .card.soon .thumb::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: var(--gt-hz-inert);
-    opacity: .5;
+  .points { list-style: none; display: grid; gap: 6px; margin: var(--gt-s-2) 0 var(--gt-s-2); }
+  .points li {
+    position: relative; padding-left: 18px;
+    font-size: var(--gt-t-sm); color: var(--gt-ink-2);
   }
-  .card.soon .thumb::after { background: none; }
-  .thumb__icon {
-    position: relative;
-    z-index: 1;
-    width: 46px; height: 46px;
-    color: var(--gt-ink-4);           /* inert glyph, never text */
+  .points li::before {
+    content: ""; position: absolute; left: 0; top: .62em;
+    width: 8px; height: 2px; background: var(--gt-sig);
   }
-  .card.soon .media__edge {
-    height: 9px;
-    background: var(--gt-hz-inert);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .06);
-  }
-  .card.soon .body { background: none; }
-  .card.soon p { color: var(--gt-ink-3); }
-  .card.soon .cta {
-    color: var(--gt-ink-3);
-    background: none;
-    border-style: dashed;
-    border-color: var(--gt-edge-hair);
-    box-shadow: none;
-  }
-  .card.soon .cta .gi { color: var(--gt-ink-4); }
+  .is-filtered .points { display: none; }
 
   /* ── Footer ───────────────────────────────────────────────────────────── */
-  footer {
+  .foot {
     margin-top: clamp(48px, 7vw, 78px);
-    padding-top: var(--gt-s-5);
+    padding: var(--gt-s-5) 0 var(--gt-s-8);
     border-top: 1px solid var(--gt-edge-hair);
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) repeat(3, minmax(0, 1fr));
+    gap: var(--gt-s-6);
     font-size: var(--gt-t-sm);
-    line-height: 1.9;
-    color: var(--gt-ink-3);           /* was #565b7d — under AA on this substrate */
+    color: var(--gt-ink-3);
   }
-  footer a {
-    color: var(--gt-sig-ink);
-    text-decoration: none;
+  .foot h2 { margin-bottom: var(--gt-s-2); }
+  .foot ul { list-style: none; display: grid; gap: 4px; }
+  .foot a {
+    color: var(--gt-ink-2); text-decoration: none;
     border-bottom: 1px solid transparent;
-    border-radius: var(--gt-r-1);
-    transition: border-color var(--gt-d-2) var(--gt-ease-soft);
+    transition: border-color var(--gt-d-2) var(--gt-ease-soft), color var(--gt-d-2) var(--gt-ease-soft);
   }
-  footer a:hover { border-bottom-color: currentColor; }
-  footer a:focus-visible { outline: none; box-shadow: var(--gt-focus-ring); }
+  .foot a:hover { color: var(--gt-sig-ink); border-bottom-color: currentColor; }
+  .foot a:focus-visible { outline: none; box-shadow: var(--gt-focus-ring); border-radius: var(--gt-r-1); }
+  .foot__fine { margin-top: var(--gt-s-3); font-size: var(--gt-t-xs); line-height: 1.7; }
 
-  @media (max-width: 560px) {
-    :root { --hub-card-min: 240px; }
-    /* Keep the three counters on one line instead of wrapping a lone cell
-       under a dangling divider. */
-    .hero__stat { padding-right: var(--gt-s-4); }
-    .hero__stat + .hero__stat { padding-left: var(--gt-s-4); }
-    .hero__stat dd { font-size: var(--gt-t-lg); }
+  /* ── Responsive ───────────────────────────────────────────────────────── */
+  @media (max-width: 999px) {
+    .hero { grid-template-columns: 1fr; align-items: start; }
+    .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .card, .card--half, .is-filtered .card, .is-filtered .card--half, .is-filtered .card--feature { grid-column: span 1; }
+    .card--feature { grid-column: 1 / -1; }
+    .foot { grid-template-columns: 1fr 1fr; }
   }
-  /* Measured: at s-4 gutters the three cells need 302px, so below a ~375px
-     viewport "In progress" still dropped to a second row under a dangling
-     divider — 360px is the commonest Android width. Tighter gutters, no
-     trailing one, and slightly less label tracking bring the row to ~237px,
-     which holds all the way down to 320px. */
-  @media (max-width: 400px) {
-    .hero__stats { --gt-track-label: .10em; }
-    .hero__stat { padding-right: var(--gt-s-2); }
-    .hero__stat + .hero__stat { padding-left: var(--gt-s-2); }
-    .hero__stat:last-child { padding-right: 0; }
+  @media (max-width: 640px) {
+    .wrap { padding: 0 var(--gt-s-4); }
+    .top nav a:not(.top__gh) { display: none; }
+    .grid { grid-template-columns: 1fr; }
+    .card--feature { grid-column: auto; }
+    .fact { padding-right: var(--gt-s-4); }
+    .fact + .fact { padding-left: var(--gt-s-4); }
+    .fact dd { font-size: var(--gt-t-lg); }
+    .filters__count { margin-left: 0; width: 100%; }
+    /* On a phone the board sits above the projects; four rows say enough. */
+    .board li:nth-child(n+5) { display: none; }
+    .foot { grid-template-columns: 1fr; }
   }
-
-  /* ds.css already zeroes durations; these remove the transforms outright. */
+  /* Four counters at 360px need tighter gutters to stay on one row. */
+  @media (max-width: 420px) {
+    .facts { --gt-track-label: .10em; }
+    .fact { padding-right: var(--gt-s-2); }
+    .fact + .fact { padding-left: var(--gt-s-2); }
+    .fact:last-child { padding-right: 0; }
+  }
   @media (prefers-reduced-motion: reduce) {
     a.card:hover .media img,
     a.card:focus-visible .media img { transform: none; }
   }
 </style>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "GITATO",
+  "url": "https://gitato.net/",
+  "author": { "@type": "Person", "name": "HilsenFar", "url": "https://github.com/HilsenFar" }
+}
+</script>
 </head>
 <body data-gt="hub">
 <div class="gt-vignette"></div>
 <div class="gt-grain"></div>
+<a class="skip" href="#projects">Skip to projects</a>
 
 <div class="wrap">
-  <header class="hero">
-    <p class="hero__eyebrow">
+  <header class="top">
+    <span class="top__mark">
       <svg class="gi gi--sm" aria-hidden="true" focusable="false"><use href="icons.svg#gi-hex"></use></svg>
-      <span>gitato.net</span>
-      <span class="hero__hair" aria-hidden="true"></span>
-    </p>
-    <h1 class="hero__logo gt-logo">GITATO</h1>
-    <p class="hero__tagline gt-tagline">Projects &amp; experiments by HilsenFar</p>
-
-    <dl class="hero__stats">
-      <div class="hero__stat">
-        <dt class="gt-label">Projects</dt>
-        <dd class="gt-num" id="stat-total">—</dd>
-      </div>
-      <div class="hero__stat">
-        <dt class="gt-label">Live now</dt>
-        <dd class="gt-num" id="stat-live">—</dd>
-      </div>
-      <div class="hero__stat">
-        <dt class="gt-label">In progress</dt>
-        <dd class="gt-num" id="stat-soon">—</dd>
-      </div>
-    </dl>
+      gitato.net
+    </span>
+    <nav aria-label="Sections">
+      <a href="#rl">Rocket League</a>
+      <a href="#games">Games</a>
+      <a href="#tools">Tools</a>
+      <a class="top__gh" href="https://github.com/HilsenFar">GitHub
+        <svg class="gi gi--sm" aria-hidden="true" focusable="false"><use href="icons.svg#gi-external"></use></svg></a>
+    </nav>
   </header>
 
-  <div class="section-head">
-    <h2 class="gt-h2">Projects</h2>
-    <span class="section-head__rule" aria-hidden="true"></span>
-    <span class="section-head__hz gt-hazard gt-hazard--inert" aria-hidden="true"></span>
-  </div>
+  <main>
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="hero__copy">
+        <h1 class="hero__logo gt-logo" id="hero-title">GITATO</h1>
+        <p class="hero__tagline gt-tagline">Projects &amp; experiments by HilsenFar</p>
+        <p class="hero__lead">Browser games you can play on a phone, free tools for Rocket League players on PC, and a few small apps. All of it free.</p>
+        <dl class="facts">
+          <div class="fact"><dt class="gt-label">Projects</dt><dd class="gt-num" id="f-total">10</dd></div>
+          <div class="fact"><dt class="gt-label">In a browser</dt><dd class="gt-num" id="f-browser">06</dd></div>
+          <div class="fact"><dt class="gt-label">On a phone</dt><dd class="gt-num" id="f-phone">04</dd></div>
+          <div class="fact"><dt class="gt-label">Price</dt><dd class="gt-num">FREE</dd></div>
+        </dl>
+      </div>
 
-  <div class="grid" id="grid"></div>
+      <aside class="board" id="board" data-state="baked" aria-labelledby="board-title">
+        <div class="board__head">
+          <h2 class="gt-label" id="board-title" style="color:var(--gt-ink-1)">Recently shipped</h2>
+          <span class="board__state gt-serial" id="board-state">as of 22 Sep</span>
+        </div>
+        <ol id="board-list"></ol>
+        <div class="board__foot">
+          <span class="gt-serial">Last push to each project's repo</span>
+          <a class="gt-serial" href="https://github.com/HilsenFar?tab=repositories" style="padding:0;display:inline;color:var(--gt-sig-ink)">GitHub</a>
+        </div>
+      </aside>
+    </section>
 
-  <footer>
-    © HilsenFar · <a class="gt-focusable" href="https://github.com/HilsenFar">github.com/HilsenFar</a><br>
-    Sprunki characters &amp; sounds by NyankoBfLol (Scratch, CC BY-SA 2.0) — fan project.
+    <div class="filters" role="group" aria-label="Show projects that run" id="filters">
+      <span class="filters__label gt-label">Show</span>
+      <button class="gt-chip" type="button" data-f="all" aria-pressed="true">All</button>
+      <button class="gt-chip" type="button" data-f="browser" aria-pressed="false">In a browser</button>
+      <button class="gt-chip" type="button" data-f="phone" aria-pressed="false">On a phone</button>
+      <button class="gt-chip" type="button" data-f="windows" aria-pressed="false">Windows</button>
+      <span class="filters__count gt-serial" id="filters-count" aria-live="polite"></span>
+    </div>
+
+    <div id="projects">
+      <section class="shelf" id="rl" aria-labelledby="rl-h" data-shelf="rl">
+        <div class="shelf__head">
+          <span class="gt-serial">01</span>
+          <h2 class="gt-h2" id="rl-h">Rocket League</h2>
+          <span class="shelf__rule" aria-hidden="true"></span>
+        </div>
+        <p class="shelf__blurb">Free tools for PC players. The tracker and the overlay read the game's official Stats API and never touch its memory, so Easy Anti-Cheat stays happy. Roll picks your next training pack.</p>
+        <div class="grid" data-grid="rl"></div>
+      </section>
+
+      <section class="shelf" id="games" aria-labelledby="games-h" data-shelf="games">
+        <div class="shelf__head">
+          <span class="gt-serial">02</span>
+          <h2 class="gt-h2" id="games-h">Games</h2>
+          <span class="shelf__rule" aria-hidden="true"></span>
+        </div>
+        <p class="shelf__blurb">Four of them run in a browser tab with nothing to install, and they work on a phone as well. Frequency Pilot is a Windows download.</p>
+        <div class="grid" data-grid="games"></div>
+      </section>
+
+      <section class="shelf" id="tools" aria-labelledby="tools-h" data-shelf="tools">
+        <div class="shelf__head">
+          <span class="gt-serial">03</span>
+          <h2 class="gt-h2" id="tools-h">Tools</h2>
+          <span class="shelf__rule" aria-hidden="true"></span>
+        </div>
+        <p class="shelf__blurb">Small apps that do one job each, on your own machine.</p>
+        <div class="grid" data-grid="tools"></div>
+      </section>
+    </div>
+
+    <noscript>
+      <ul style="margin-top:24px;display:grid;gap:8px">
+        <li><a href="https://rltracker.gitato.net">RL Live Tracker</a></li>
+        <li><a href="https://rankoverlay.gitato.net">RL Rank Overlay</a></li>
+        <li><a href="https://roll.gitato.net">RL Roll</a></li>
+        <li><a href="https://game.gitato.net/rts/">Gitato Command</a></li>
+        <li><a href="https://game.gitato.net">GITATO — the game</a></li>
+        <li><a href="https://spil.gitato.net">Jason's Sprunkiverse</a></li>
+        <li><a href="https://beatsurfer.gitato.net">BeatSurfer</a></li>
+        <li><a href="https://frequencypilot.gitato.net">Frequency Pilot</a></li>
+        <li><a href="https://addson.gitato.net">AddSon</a></li>
+        <li><a href="https://mediestudio.gitato.net">MedieStudio</a></li>
+      </ul>
+    </noscript>
+  </main>
+
+  <footer class="foot">
+    <div>
+      <p class="gt-label" style="color:var(--gt-ink-1)">GITATO</p>
+      <p class="foot__fine">© HilsenFar · <a href="https://github.com/HilsenFar">github.com/HilsenFar</a></p>
+      <p class="foot__fine">The Rocket League tools are fan-made and not affiliated with or endorsed by Psyonix or Epic Games.
+        Sprunki characters &amp; sounds by NyankoBfLol (Scratch, CC BY-SA 2.0), fan project.</p>
+    </div>
+    <nav aria-labelledby="fl-rl"><h2 class="gt-label" id="fl-rl">Rocket League</h2><ul id="fl-rl-list"></ul></nav>
+    <nav aria-labelledby="fl-games"><h2 class="gt-label" id="fl-games">Games</h2><ul id="fl-games-list"></ul></nav>
+    <nav aria-labelledby="fl-tools"><h2 class="gt-label" id="fl-tools">Tools</h2><ul id="fl-tools-list"></ul></nav>
   </footer>
 </div>
 
 <script>
-  // Add new projects here. Everything else follows from the list.
+  // ── The list. Add a project here; the shelves, counters, board, filters and
+  //    footer all follow from it. ──────────────────────────────────────────
+  //   shelf  rl | games | tools          size  feature | half | (third)
+  //   runs   any of browser, phone, windows — what a visitor can actually do
+  //   sig    a DS signal name; the card is lit in it on hover
+  //   repo   public repo under github.com/HilsenFar, for "updated" + release tag
   const PROJECTS = [
     {
-      title: "RL LIVE TRACKER",
-      desc: "A free coach for Rocket League on PC. It reads the game's official Stats API while you play, measures ~30 habits against your own baseline, and coaches you one focus at a time. Your data stays on your machine.",
-      img: "assets/rltracker-cover.png",
-      url: "https://rltracker.gitato.net",
-      cta: "DOWNLOAD ▸",
+      id: "rltracker", shelf: "rl", size: "feature", sig: "amber",
+      title: "RL Live Tracker",
+      desc: "A free coach for Rocket League on PC. It reads the game's official Stats API while you play, measures around 30 habits against your own baseline, and coaches you one focus at a time.",
+      points: ["Debrief after every match, with the source of each piece of advice", "Board for a second screen, overlay for the first", "Your data stays on your PC"],
+      img: "rltracker", url: "https://rltracker.gitato.net", cta: "Download",
+      runs: ["windows"], repo: "rl-tracker-releases", release: true,
     },
     {
-      title: "RL RANK OVERLAY",
-      desc: "Transparent in-game overlay that shows every player's rank in your live Rocket League lobby — emblems, divisions and MMR for both teams. Open source, no account, hides itself when the game closes.",
-      img: "assets/rankoverlay-cover.png",
-      url: "https://rankoverlay.gitato.net",
-      cta: "DOWNLOAD ▸",
+      id: "rankoverlay", shelf: "rl", size: "half", sig: "sky",
+      title: "RL Rank Overlay",
+      desc: "A transparent in-game overlay with every player's rank in your live lobby: emblem, division and MMR for both teams. Open source, no account, hides itself when the game closes.",
+      img: "rankoverlay", url: "https://rankoverlay.gitato.net", cta: "Download",
+      runs: ["windows"], repo: "rl-rank-overlay", release: true,
     },
     {
-      title: "RL ROLL",
-      desc: "Can't decide what to practice? Roll a random Rocket League training pack — filter by category, difficulty or rating. Runs right in your browser; the download adds console tools and a scraper for thousands more packs.",
-      img: "assets/roll-cover.png",
-      url: "https://roll.gitato.net",
-      cta: "OPEN ▸",
+      id: "roll", shelf: "rl", size: "half", sig: "teal",
+      title: "RL Roll",
+      desc: "Can't decide what to practise? Roll a random training pack, or filter by category, difficulty or tag first. Runs in your browser; the download adds console tools and a scraper for thousands more packs.",
+      img: "roll", url: "https://roll.gitato.net", cta: "Open",
+      runs: ["browser", "windows"], repo: "rl-training-randomizer", release: true,
     },
     {
-      title: "GITATO COMMAND",
-      desc: "3D multiplayer RTS — in your browser. Harvest crystals, raise a neon army, and crush the enemy HQ. Play a friend online with a 4-letter room code, or fight the AI. Free, no install, works on desktop and mobile.",
-      img: "assets/command-cover.png",
-      url: "https://game.gitato.net/rts/",
-      cta: "PLAY NOW ▸",
+      id: "command", shelf: "games", size: "half", sig: "teal",
+      title: "Gitato Command",
+      desc: "A 3D multiplayer RTS in your browser. Harvest crystals, raise a neon army and take out the enemy HQ. Play a friend online with a 4-letter room code, or fight the AI.",
+      img: "command", url: "https://game.gitato.net/rts/", cta: "Play now",
+      runs: ["browser", "phone"], repo: "gitato-game",
     },
     {
-      title: "GITATO — THE GAME",
-      desc: "REZ-inspired on-rails rhythm shooter for the hard electronic genres: hardstyle, gabber, frenchcore, psytrance and more. Lock on to the beat, generative music, playable right in your browser.",
-      img: "assets/gitato-game-cover.png",
-      url: "https://game.gitato.net",
-      cta: "PLAY ▸",
+      id: "gitato", shelf: "games", size: "half", sig: "cyan",
+      title: "GITATO — the game",
+      desc: "A REZ-inspired on-rails rhythm shooter for the hard electronic genres: hardstyle, gabber, frenchcore, psytrance and more. Lock on to the beat over generative music.",
+      img: "gitato-game", url: "https://game.gitato.net", cta: "Play",
+      runs: ["browser", "phone"], repo: "gitato-game",
     },
     {
-      title: "JASON'S SPRUNKIVERSE",
-      desc: "Fan-made 3D Sprunki universe in your browser: music mixer with the original cast and horror mode, open world, god simulator and aquarium. Works on desktop and mobile.",
-      img: "assets/sprunkiverse-cover.png",
-      url: "https://spil.gitato.net",
-      cta: "PLAY ▸",
+      id: "sprunkiverse", shelf: "games", sig: "plum",
+      title: "Jason's Sprunkiverse",
+      desc: "A fan-made 3D Sprunki universe: music mixer with the original cast and a horror mode, open world, god simulator and aquarium.",
+      img: "sprunkiverse", url: "https://spil.gitato.net", cta: "Play",
+      runs: ["browser", "phone"], repo: "sprunkiverse",
     },
     {
-      title: "BEATSURFER",
-      desc: "Neon-synthwave rhythm flyer: drop in a song and surf its frequency bands Guitar Hero-style. 6 pilots, star power, built-in demo track — right in your browser.",
-      img: "assets/beatsurfer-cover.png",
-      url: "https://beatsurfer.gitato.net",
-      cta: "PLAY ▸",
+      id: "beatsurfer", shelf: "games", sig: "magenta",
+      title: "BeatSurfer",
+      desc: "A neon-synthwave rhythm flyer: drop in a song and surf its frequency bands, Guitar Hero style. Six pilots, star power and a built-in demo track.",
+      img: "beatsurfer", url: "https://beatsurfer.gitato.net", cta: "Play",
+      runs: ["browser", "phone"], repo: "beatsurfer",
     },
     {
-      title: "FREQUENCY-PILOT",
-      desc: "Rhythm/dodge tunnel flyer for Windows: one song becomes four frequency-band levels. Procedural graphics, YouTube/SoundCloud import. Free download.",
-      img: "assets/frequencypilot-cover.png",
-      url: "https://frequencypilot.gitato.net",
-      cta: "DOWNLOAD ▸",
+      id: "frequencypilot", shelf: "games", sig: "green",
+      title: "Frequency Pilot",
+      desc: "A rhythm and dodge tunnel flyer for Windows: one song becomes four levels, one per frequency band. Procedural graphics, YouTube and SoundCloud import.",
+      img: "frequencypilot", url: "https://frequencypilot.gitato.net", cta: "Download",
+      runs: ["windows"], repo: "frequency-pilot",
     },
     {
-      title: "ADDSON",
-      desc: "Kid-friendly modding sidekick: scans your PC for installed games (Steam & Game Pass) and offers mods for the ones it finds — Minecraft Bedrock, Subnautica, JWE and more. Never touches your saves. With AI Texture Studio.",
-      img: "assets/addson-cover.png",
-      url: "https://addson.gitato.net",
-      cta: "DOWNLOAD ▸",
+      id: "addson", shelf: "tools", size: "half", sig: "yellow",
+      title: "AddSon",
+      desc: "A modding sidekick for kids. It finds the games on your PC (Steam and Game Pass) and helps add mods to Minecraft Bedrock, Subnautica, Jurassic World Evolution and more. It never touches your saves.",
+      img: "addson", url: "https://addson.gitato.net", cta: "Download",
+      runs: ["windows"], repo: "addson",
     },
     {
-      title: "MEDIESTUDIO",
-      desc: "Video editing right in your browser: cut, trim, text, subtitles, effects and MP4 export. Everything stays on your machine — nothing is uploaded. Also available as a Windows app. (Danish UI)",
-      img: "assets/mediestudio-cover.png",
-      url: "https://mediestudio.gitato.net",
-      cta: "OPEN ▸",
+      id: "mediestudio", shelf: "tools", size: "half", sig: "cyan",
+      title: "MedieStudio",
+      desc: "Video editing in your browser: cut, trim, text, subtitles, effects and MP4 export. Nothing is uploaded; the footage never leaves your machine. Also a Windows app. Danish interface.",
+      img: "mediestudio", url: "https://mediestudio.gitato.net", cta: "Open",
+      runs: ["browser", "windows"], repo: "mediestudio",
     },
-];
+  ];
 
-  // ── Icons: emoji and arrow glyphs are replaced by the sprite (ds v2). ──────
-  const icon = (id, cls) =>
-    `<svg class="${cls || 'gi'}" aria-hidden="true" focusable="false"><use href="icons.svg#${id}"></use></svg>`;
+  // Baked from the GitHub API on 22 Sep 2026. Used until (or instead of) the
+  // live read below, so the board is never empty and never blocks render.
+  const BAKED = {
+    at: "2026-09-22",
+    pushed: {
+      "rl-tracker-releases": "2026-09-10T11:54:08Z", "rl-rank-overlay": "2026-09-04T01:50:48Z",
+      "rl-training-randomizer": "2026-09-04T01:51:01Z", "gitato-game": "2026-09-04T01:42:42Z",
+      "sprunkiverse": "2026-09-04T01:42:40Z", "beatsurfer": "2026-09-04T01:42:10Z",
+      "frequency-pilot": "2026-09-04T01:42:12Z", "addson": "2026-09-04T01:42:15Z",
+      "mediestudio": "2026-09-06T01:05:56Z",
+    },
+    tags: { "rl-tracker-releases": "v2026.09.10", "rl-rank-overlay": "v1.1.3", "rl-training-randomizer": "v1.3.0" },
+  };
 
-  const CTA_ICONS = [[/download/i, 'gi-download'], [/play/i, 'gi-play'], [/open/i, 'gi-external']];
-  const ctaIcon = (label) => (CTA_ICONS.find(([re]) => re.test(label)) || [null, 'gi-arrow-right'])[1];
-  // "PLAY ▸" → "PLAY": the arrow becomes a real icon instead of a glyph.
-  const ctaLabel = (cta) => String(cta).replace(/[\s▶▸►➤→»]+$/, '');
+  const RUNS = {
+    browser: { label: "Browser", icon: "gi-globe" },
+    phone:   { label: "Phone",   icon: "gi-phone" },
+    windows: { label: "Windows", icon: "gi-download" },
+  };
+  const CTA_ICONS = { download: "gi-download", play: "gi-play", "play now": "gi-play", open: "gi-external" };
 
-  const num = (n) => String(n).padStart(2, '0');
+  const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+  const icon = (id, cls) => `<svg class="${cls || "gi"}" aria-hidden="true" focusable="false"><use href="icons.svg#${id}"></use></svg>`;
+  const two = (n) => String(n).padStart(2, "0");
+  const sigStyle = (s) => `--gt-sig:var(--gt-${s});--gt-sig-ink:var(--gt-${s}-ink);--gt-sig-dk:var(--gt-${s}-dk)`;
 
-  const grid = document.getElementById('grid');
-  PROJECTS.forEach((p, i) => {
-    const isLive = Boolean(p.url);
-    const el = document.createElement(isLive ? 'a' : 'div');
-    el.className = 'gt-card card' + (isLive ? '' : ' gt-card--soon soon');
-    if (isLive) { el.href = p.url; }
-    const label = ctaLabel(p.cta);
-    el.innerHTML = `
-      <div class="media${p.img ? '' : ' thumb'}">
-        ${p.img
-          ? `<img src="${p.img}" alt="" loading="${i < 2 ? 'eager' : 'lazy'}" decoding="async">`
-          : icon(p.icon || 'gi-spark', 'gi thumb__icon')}
-        <span class="idx gt-badge" aria-hidden="true">${num(i + 1)}</span>
-        ${p.img ? icon('gi-corner', 'gi corner') : ''}
+  const rtf = new Intl.RelativeTimeFormat("en", { numeric: "auto" });
+  function ago(iso) {
+    const days = Math.round((Date.now() - Date.parse(iso)) / 864e5);
+    if (!Number.isFinite(days)) return "";
+    if (days < 1) return "today";
+    if (days < 45) return rtf.format(-days, "day");
+    if (days < 540) return rtf.format(-Math.round(days / 30.4), "month");
+    return rtf.format(-Math.round(days / 365), "year");
+  }
+  const shortDate = (iso) => new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short" });
+
+  // ── Cards ────────────────────────────────────────────────────────────────
+  const SIZES = { feature: [1280, 960], half: [960, 480], third: [960, 480] };
+  const SIZES_ATTR = {
+    feature: "(min-width: 1000px) 660px, (min-width: 641px) 92vw, 100vw",
+    half:    "(min-width: 1000px) 550px, (min-width: 641px) 46vw, 100vw",
+    third:   "(min-width: 1000px) 360px, (min-width: 641px) 46vw, 100vw",
+  };
+  function card(p, i) {
+    const size = p.size || "third";
+    const imgs = [480, 960, 1280].map((w) => `assets/covers/${p.img}-${w}.webp ${w}w`).join(", ");
+    const runs = p.runs.map((r) => `<span class="gt-chip">${icon(RUNS[r].icon)}${RUNS[r].label}</span>`).join("");
+    const points = p.points ? `<ul class="points">${p.points.map((t) => `<li>${esc(t)}</li>`).join("")}</ul>` : "";
+    const ctaIcon = CTA_ICONS[p.cta.toLowerCase()] || "gi-arrow-right";
+    const a = document.createElement("a");
+    a.className = `gt-card card${size !== "third" ? " card--" + size : ""}`;
+    a.href = p.url;
+    a.dataset.id = p.id;
+    a.dataset.runs = p.runs.join(" ");
+    a.setAttribute("style", sigStyle(p.sig));
+    a.innerHTML = `
+      <div class="media">
+        <img src="assets/covers/${p.img}-960.webp" srcset="${imgs}" sizes="${SIZES_ATTR[size]}"
+             width="960" height="540" alt="" loading="${i < 3 ? "eager" : "lazy"}" decoding="async"${i === 0 ? ' fetchpriority="high"' : ""}>
+        <span class="idx gt-badge" aria-hidden="true">${two(i + 1)}</span>
+        ${icon("gi-corner", "gi corner")}
         <span class="media__edge" aria-hidden="true"></span>
       </div>
       <div class="body">
-        <h3 class="gt-card__title">${p.title}</h3>
-        <p>${p.desc}</p>
-        <span class="cta">${label}${icon(isLive ? ctaIcon(label) : 'gi-dot')}</span>
+        <div class="runs" aria-label="Runs on: ${p.runs.map((r) => RUNS[r].label).join(", ")}">${runs}</div>
+        <h3>${esc(p.title)}</h3>
+        <p>${esc(p.desc)}</p>
+        ${points}
+        <div class="card__foot">
+          <span class="cta">${esc(p.cta)}${icon(ctaIcon)}</span>
+          <span class="card__upd" data-upd="${p.repo || ""}"></span>
+        </div>
       </div>`;
-    grid.appendChild(el);
+    return a;
+  }
+
+  PROJECTS.forEach((p, i) => {
+    document.querySelector(`[data-grid="${p.shelf}"]`).appendChild(card(p, i));
+    const li = document.createElement("li");
+    li.innerHTML = `<a href="${p.url}">${esc(p.title)}</a>`;
+    document.getElementById(`fl-${p.shelf}-list`).appendChild(li);
   });
 
   // The hero counters are read from the list itself, so they can never be wrong.
-  const liveCount = PROJECTS.filter((p) => p.url).length;
-  const stats = {
-    'stat-total': PROJECTS.length,
-    'stat-live': liveCount,
-    'stat-soon': PROJECTS.length - liveCount,
-  };
-  for (const [id, value] of Object.entries(stats)) {
-    const node = document.getElementById(id);
-    if (node) { node.textContent = num(value); }
+  const count = (r) => PROJECTS.filter((p) => p.runs.includes(r)).length;
+  document.getElementById("f-total").textContent = two(PROJECTS.length);
+  document.getElementById("f-browser").textContent = two(count("browser"));
+  document.getElementById("f-phone").textContent = two(count("phone"));
+
+  // ── Filters ──────────────────────────────────────────────────────────────
+  const projectsEl = document.getElementById("projects");
+  const countEl = document.getElementById("filters-count");
+  function applyFilter(f) {
+    for (const b of document.querySelectorAll("#filters button")) b.setAttribute("aria-pressed", String(b.dataset.f === f));
+    projectsEl.classList.toggle("is-filtered", f !== "all");
+    let shown = 0;
+    for (const c of document.querySelectorAll(".card")) {
+      const ok = f === "all" || c.dataset.runs.split(" ").includes(f);
+      c.hidden = !ok;
+      if (ok) shown++;
+    }
+    for (const s of document.querySelectorAll(".shelf")) s.hidden = !s.querySelector(".card:not([hidden])");
+    countEl.textContent = f === "all" ? "" : `${shown} of ${PROJECTS.length} projects`;
+  }
+  document.getElementById("filters").addEventListener("click", (e) => {
+    const b = e.target.closest("button[data-f]");
+    if (b) applyFilter(b.dataset.f);
+  });
+
+  // ── Board + "updated" lines ──────────────────────────────────────────────
+  // One unauthenticated call to GitHub for every repo's last push, plus the
+  // latest release tag of the three downloads. Cached for an hour in this
+  // browser only; any failure leaves the baked values in place.
+  const boardEl = document.getElementById("board");
+  const CACHE_KEY = "gitato.board.v1";
+  const TTL = 60 * 60 * 1000;
+
+  function paint(data, live) {
+    const rows = [];
+    const seen = new Set();
+    const byDate = PROJECTS.filter((p) => data.pushed[p.repo])
+      .sort((a, b) => Date.parse(data.pushed[b.repo]) - Date.parse(data.pushed[a.repo]));
+    for (const p of byDate) {
+      const tag = p.release ? data.tags[p.repo] : "";
+      rows.push(`<li><a href="${p.url}" style="${sigStyle(p.sig)}">
+        <span class="board__dot" aria-hidden="true"></span>
+        <span class="board__name">${esc(p.title)}${tag ? `<small>${esc(tag)}</small>` : ""}</span>
+        <time class="gt-serial" datetime="${data.pushed[p.repo]}" title="${shortDate(data.pushed[p.repo])}">${ago(data.pushed[p.repo])}</time>
+      </a></li>`);
+      seen.add(p.repo);
+      if (rows.length === 7) break;
+    }
+    document.getElementById("board-list").innerHTML = rows.join("");
+    for (const el of document.querySelectorAll("[data-upd]")) {
+      const repo = el.dataset.upd;
+      const when = data.pushed[repo];
+      if (!when) continue;
+      const p = PROJECTS.find((x) => x.repo === repo);
+      const tag = p && p.release ? data.tags[repo] : "";
+      el.innerHTML = `${tag ? `<b>${esc(tag)}</b> · ` : ""}updated ${ago(when)}`;
+    }
+    boardEl.dataset.state = live ? "live" : "baked";
+    document.getElementById("board-state").textContent = live ? "live from GitHub" : `as of ${shortDate(data.at)}`;
   }
 
-  if ('serviceWorker' in navigator && !['localhost', '127.0.0.1'].includes(location.hostname)) {
-    addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+  function readCache() {
+    try {
+      const c = JSON.parse(localStorage.getItem(CACHE_KEY) || "null");
+      return c && Date.now() - c.t < TTL ? c.data : null;
+    } catch { return null; }
+  }
+  function writeCache(data) {
+    try { localStorage.setItem(CACHE_KEY, JSON.stringify({ t: Date.now(), data })); } catch {}
+  }
+  async function gh(path) {
+    const ctl = new AbortController();
+    const timer = setTimeout(() => ctl.abort(), 5000);
+    try {
+      const r = await fetch(`https://api.github.com/${path}`, { signal: ctl.signal, headers: { Accept: "application/vnd.github+json" } });
+      if (!r.ok) throw new Error(r.status);
+      return await r.json();
+    } finally { clearTimeout(timer); }
+  }
+  async function refresh() {
+    const repos = await gh("users/HilsenFar/repos?per_page=100&sort=pushed");
+    const data = { at: new Date().toISOString(), pushed: {}, tags: { ...BAKED.tags } };
+    for (const r of repos) if (!r.private) data.pushed[r.name] = r.pushed_at;
+    const rel = PROJECTS.filter((p) => p.release);
+    const tags = await Promise.allSettled(rel.map((p) => gh(`repos/HilsenFar/${p.repo}/releases/latest`)));
+    tags.forEach((t, i) => { if (t.status === "fulfilled" && t.value.tag_name) data.tags[rel[i].repo] = t.value.tag_name; });
+    return data;
+  }
+
+  const cached = readCache();
+  paint(cached || BAKED, Boolean(cached));
+  if (!cached) {
+    refresh().then((d) => { writeCache(d); paint(d, true); }).catch(() => {});
+  }
+
+  if ("serviceWorker" in navigator && !["localhost", "127.0.0.1"].includes(location.hostname)) {
+    addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
   }
 </script>
 </body>
