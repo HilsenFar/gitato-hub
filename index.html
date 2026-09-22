@@ -139,12 +139,18 @@
      hero size is 118px and GITATO at .12em tracking is ~4.7em wide, which ran
      the O off the column's edge. 19cqi keeps the word inside at every width. */
   .hero__logo {
-    font-size: min(var(--gt-t-hero), 19cqi);
+    font-size: clamp(40px, 9vw, 96px);   /* browsers without container units (iOS 15) */
     background: linear-gradient(180deg, #FFFFFF 0%, var(--gt-ink-1) 32%, #8A94A6 74%, #5C6575 100%);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
     filter: drop-shadow(0 2px 0 rgba(0, 0, 0, .7));
+  }
+  /* Inside @supports: min() with var() and an unknown unit is invalid only at
+     computed-value time, so without the guard an old browser would drop the
+     whole declaration and the logo would inherit the 14px body size. */
+  @supports (font-size: 1cqi) {
+    .hero__logo { font-size: min(var(--gt-t-hero), 19cqi); }
   }
   .hero__tagline { margin-top: var(--gt-s-3); }
   .hero__lead {
@@ -337,7 +343,9 @@
     padding: var(--gt-s-4) var(--gt-s-5) var(--gt-s-5);
     background: linear-gradient(180deg, var(--gt-pl-1), var(--gt-sub-1));
   }
-  .runs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 2px; }
+  /* After the title in the DOM, so a screen reader names the card by its
+     title first; order:-1 still shows the chips above it. */
+  .runs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 2px; order: -1; }
   .runs .gt-chip { padding: 3px 8px; font-size: 10.5px; gap: 5px; }
   .runs .gi { width: 12px; height: 12px; color: var(--gt-sig-ink); }
   .card h3 {
@@ -695,14 +703,20 @@
 
   const rtf = new Intl.RelativeTimeFormat("en", { numeric: "auto" });
   function ago(iso) {
-    const days = Math.round((Date.now() - Date.parse(iso)) / 864e5);
+    const days = Math.floor((Date.now() - Date.parse(iso)) / 864e5);
     if (!Number.isFinite(days)) return "";
     if (days < 1) return "today";
     if (days < 45) return rtf.format(-days, "day");
     if (days < 540) return rtf.format(-Math.round(days / 30.4), "month");
     return rtf.format(-Math.round(days / 365), "year");
   }
-  const shortDate = (iso) => new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short" });
+  const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  // UTC on purpose: "2026-09-22" is UTC midnight, and west of UTC a local
+  // format showed it as 21 Sep.
+  const shortDate = (iso) => { const d = new Date(iso); return `${d.getUTCDate()} ${MONTHS[d.getUTCMonth()]}`; };
+  // Only ever render timestamps that look like GitHub's; anything else
+  // (a poisoned cache, an odd API reply) is dropped before it reaches the DOM.
+  const ISO = /^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\dZ$/;
 
   // ── Cards ────────────────────────────────────────────────────────────────
   const SIZES = { feature: [1280, 960], half: [960, 480], third: [960, 480] };
@@ -732,8 +746,8 @@
         <span class="media__edge" aria-hidden="true"></span>
       </div>
       <div class="body">
-        <div class="runs" aria-label="Runs on: ${p.runs.map((r) => RUNS[r].label).join(", ")}">${runs}</div>
         <h3>${esc(p.title)}</h3>
+        <div class="runs">${runs}</div>
         <p>${esc(p.desc)}</p>
         ${points}
         <div class="card__foot">
@@ -772,6 +786,9 @@
     for (const s of document.querySelectorAll(".shelf")) s.hidden = !s.querySelector(".card:not([hidden])");
     countEl.textContent = f === "all" ? "" : `${shown} of ${PROJECTS.length} projects`;
   }
+  for (const a of document.querySelectorAll('.top nav a[href^="#"]')) {
+    a.addEventListener("click", () => { if (projectsEl.classList.contains("is-filtered")) applyFilter("all"); });
+  }
   document.getElementById("filters").addEventListener("click", (e) => {
     const b = e.target.closest("button[data-f]");
     if (b) applyFilter(b.dataset.f);
@@ -791,11 +808,12 @@
     const byDate = PROJECTS.filter((p) => data.pushed[p.repo])
       .sort((a, b) => Date.parse(data.pushed[b.repo]) - Date.parse(data.pushed[a.repo]));
     for (const p of byDate) {
+      if (seen.has(p.repo)) continue;   // Command and GITATO share one repo
       const tag = p.release ? data.tags[p.repo] : "";
       rows.push(`<li><a href="${p.url}" style="${sigStyle(p.sig)}">
         <span class="board__dot" aria-hidden="true"></span>
         <span class="board__name">${esc(p.title)}${tag ? `<small>${esc(tag)}</small>` : ""}</span>
-        <time class="gt-serial" datetime="${data.pushed[p.repo]}" title="${shortDate(data.pushed[p.repo])}">${ago(data.pushed[p.repo])}</time>
+        <time class="gt-serial" datetime="${esc(data.pushed[p.repo])}" title="${esc(shortDate(data.pushed[p.repo]))}">${esc(ago(data.pushed[p.repo]))}</time>
       </a></li>`);
       seen.add(p.repo);
       if (rows.length === 7) break;
@@ -816,7 +834,9 @@
   function readCache() {
     try {
       const c = JSON.parse(localStorage.getItem(CACHE_KEY) || "null");
-      return c && Date.now() - c.t < TTL ? c.data : null;
+      if (!c || Date.now() - c.t >= TTL || !c.data || typeof c.data.pushed !== "object") return null;
+      for (const v of Object.values(c.data.pushed)) if (!ISO.test(v)) return null;
+      return c.data;
     } catch { return null; }
   }
   function writeCache(data) {
@@ -834,10 +854,14 @@
   async function refresh() {
     const repos = await gh("users/HilsenFar/repos?per_page=100&sort=pushed");
     const data = { at: new Date().toISOString(), pushed: {}, tags: { ...BAKED.tags } };
-    for (const r of repos) if (!r.private) data.pushed[r.name] = r.pushed_at;
+    if (!Array.isArray(repos)) throw new Error("unexpected reply");
+    for (const r of repos) if (r && !r.private && ISO.test(r.pushed_at)) data.pushed[r.name] = r.pushed_at;
     const rel = PROJECTS.filter((p) => p.release);
     const tags = await Promise.allSettled(rel.map((p) => gh(`repos/HilsenFar/${p.repo}/releases/latest`)));
-    tags.forEach((t, i) => { if (t.status === "fulfilled" && t.value.tag_name) data.tags[rel[i].repo] = t.value.tag_name; });
+    tags.forEach((t, i) => {
+      const tag = t.status === "fulfilled" && t.value && t.value.tag_name;
+      if (typeof tag === "string" && /^[\w.-]{1,40}$/.test(tag)) data.tags[rel[i].repo] = tag;
+    });
     return data;
   }
 
