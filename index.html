@@ -25,10 +25,12 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black" />
 <meta name="apple-mobile-web-app-title" content="GITATO" />
 
-<!-- Fonts are self-hosted (DS v2.1). The two faces above the fold are preloaded
-     so the logotype and the headings do not swap in late. -->
+<!-- Fonts are self-hosted (DS v2.1). The three faces above the fold are preloaded
+     so the logotype, the headings and the body text do not swap in late (a late
+     Barlow swap reflowed the cards: CLS 0.04 at 1.6 Mbps, 23/9). -->
 <link rel="preload" href="fonts/orbitron-800.woff2" as="font" type="font/woff2" crossorigin />
 <link rel="preload" href="fonts/chakra-petch-700.woff2" as="font" type="font/woff2" crossorigin />
+<link rel="preload" href="fonts/barlow-400.woff2" as="font" type="font/woff2" crossorigin />
 <link rel="preconnect" href="https://api.github.com" crossorigin />
 <link rel="stylesheet" href="fonts.css" />
 <!-- GITATO Design System v2.1 — must load before this page's own styles -->
@@ -207,7 +209,11 @@
     background: var(--gt-ink-4);
   }
   .board[data-state="live"] .board__state::before { background: var(--gt-ok); box-shadow: 0 0 8px var(--gt-ok); }
-  .board ol { list-style: none; }
+  /* Height reserved for the rows (desktop 7 x 40 px, phone 4 x 38.5 px,
+     measured 23/9). On a slow connection Chrome can paint the hero before the
+     script fills the board; without this the hero then grew by ~280 px and
+     pushed everything below it (CLS 0.32 measured at 1.6 Mbps). */
+  .board ol { list-style: none; min-height: 280px; }
   .board li + li { border-top: 1px solid rgba(51, 60, 75, .55); }
   .board a {
     display: grid;
@@ -231,7 +237,7 @@
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
   .board__name small {
-    margin-left: 6px;
+    margin-left: 2px;
     font-family: var(--gt-font-mono); font-size: var(--gt-t-xs); font-weight: 600;
     letter-spacing: 0; text-transform: none; color: var(--gt-ink-3);
   }
@@ -453,6 +459,7 @@
     .filters__count { margin-left: 0; width: 100%; }
     /* On a phone the board sits above the projects; four rows say enough. */
     .board li:nth-child(n+5) { display: none; }
+    .board ol { min-height: 154px; }
     .foot { grid-template-columns: 1fr; }
   }
   /* Four counters at 360px need tighter gutters to stay on one row. */
@@ -565,36 +572,10 @@
       </section>
     </div>
 
-    <noscript>
-      <ul style="margin-top:24px;display:grid;gap:8px">
-        <li><a href="https://rltracker.gitato.net">RL Live Tracker</a></li>
-        <li><a href="https://rankoverlay.gitato.net">RL Rank Overlay</a></li>
-        <li><a href="https://roll.gitato.net">RL Roll</a></li>
-        <li><a href="https://game.gitato.net/rts/">Gitato Command</a></li>
-        <li><a href="https://game.gitato.net">GITATO — the game</a></li>
-        <li><a href="https://spil.gitato.net">Jason's Sprunkiverse</a></li>
-        <li><a href="https://beatsurfer.gitato.net">BeatSurfer</a></li>
-        <li><a href="https://frequencypilot.gitato.net">Frequency Pilot</a></li>
-        <li><a href="https://addson.gitato.net">AddSon</a></li>
-        <li><a href="https://mediestudio.gitato.net">MedieStudio</a></li>
-      </ul>
-    </noscript>
-  </main>
-
-  <footer class="foot">
-    <div>
-      <p class="gt-label" style="color:var(--gt-ink-1)">GITATO</p>
-      <p class="foot__fine">© HilsenFar · <a href="https://github.com/HilsenFar">github.com/HilsenFar</a></p>
-      <p class="foot__fine">The Rocket League tools are fan-made and not affiliated with or endorsed by Psyonix or Epic Games.
-        Sprunki characters &amp; sounds by NyankoBfLol (Scratch, CC BY-SA 2.0), fan project.</p>
-    </div>
-    <nav aria-labelledby="fl-rl"><h2 class="gt-label" id="fl-rl">Rocket League</h2><ul id="fl-rl-list"></ul></nav>
-    <nav aria-labelledby="fl-games"><h2 class="gt-label" id="fl-games">Games</h2><ul id="fl-games-list"></ul></nav>
-    <nav aria-labelledby="fl-tools"><h2 class="gt-label" id="fl-tools">Tools</h2><ul id="fl-tools-list"></ul></nav>
-  </footer>
-</div>
-
 <script>
+  /* Runs right after the markup it fills (23/9): at the end of <body> a slow
+     connection let Chrome paint empty shelves first, and the cards arriving
+     pushed the page down. The footer lists and the service worker are below. */
   // ── The list. Add a project here; the shelves, counters, board, filters and
   //    footer all follow from it. ──────────────────────────────────────────
   //   shelf  rl | games | tools          size  feature | half | (third)
@@ -669,9 +650,9 @@
     {
       id: "mediestudio", shelf: "tools", size: "half", sig: "cyan",
       title: "MedieStudio",
-      desc: "Video editing in your browser: cut, trim, text, subtitles, effects and MP4 export. The footage never leaves your machine. Also a Windows app. Danish interface.",
+      desc: "Video editing in your browser: cut, trim, text, subtitles, effects and MP4 export. The footage never leaves your machine. Danish interface.",
       img: "mediestudio", url: "https://mediestudio.gitato.net", cta: "Open",
-      runs: ["browser", "windows"], repo: "mediestudio",
+      runs: ["browser"], repo: "mediestudio",
     },
   ];
 
@@ -760,9 +741,6 @@
 
   PROJECTS.forEach((p, i) => {
     document.querySelector(`[data-grid="${p.shelf}"]`).appendChild(card(p, i));
-    const li = document.createElement("li");
-    li.innerHTML = `<a href="${p.url}">${esc(p.title)}</a>`;
-    document.getElementById(`fl-${p.shelf}-list`).appendChild(li);
   });
 
   // The hero counters are read from the list itself, so they can never be wrong.
@@ -812,7 +790,7 @@
       const tag = p.release ? data.tags[p.repo] : "";
       rows.push(`<li><a href="${p.url}" style="${sigStyle(p.sig)}">
         <span class="board__dot" aria-hidden="true"></span>
-        <span class="board__name">${esc(p.title)}${tag ? `<small>${esc(tag)}</small>` : ""}</span>
+        <span class="board__name">${esc(p.title)}${tag ? ` <small>${esc(tag)}</small>` : ""}</span>
         <time class="gt-serial" datetime="${esc(data.pushed[p.repo])}" title="${esc(shortDate(data.pushed[p.repo]))}">${esc(ago(data.pushed[p.repo]))}</time>
       </a></li>`);
       seen.add(p.repo);
@@ -831,6 +809,10 @@
     document.getElementById("board-state").textContent = live ? "live from GitHub" : `as of ${shortDate(data.at)}`;
   }
 
+  const FAIL_KEY = "gitato.board.fail.v1";
+  function recentlyFailed() {
+    try { return Date.now() - Number(localStorage.getItem(FAIL_KEY) || 0) < 15 * 60 * 1000; } catch { return false; }
+  }
   function readCache() {
     try {
       const c = JSON.parse(localStorage.getItem(CACHE_KEY) || "null");
@@ -867,9 +849,49 @@
 
   const cached = readCache();
   paint(cached || BAKED, Boolean(cached));
-  if (!cached) {
-    refresh().then((d) => { writeCache(d); paint(d, true); }).catch(() => {});
+  if (!cached && !recentlyFailed()) {
+    refresh().then((d) => { writeCache(d); paint(d, true); })
+      .catch(() => { try { localStorage.setItem(FAIL_KEY, String(Date.now())); } catch {} });
   }
+
+</script>
+
+    <noscript>
+      <ul style="margin-top:24px;display:grid;gap:8px">
+        <li><a href="https://rltracker.gitato.net">RL Live Tracker</a></li>
+        <li><a href="https://rankoverlay.gitato.net">RL Rank Overlay</a></li>
+        <li><a href="https://roll.gitato.net">RL Roll</a></li>
+        <li><a href="https://game.gitato.net/rts/">Gitato Command</a></li>
+        <li><a href="https://game.gitato.net">GITATO — the game</a></li>
+        <li><a href="https://spil.gitato.net">Jason's Sprunkiverse</a></li>
+        <li><a href="https://beatsurfer.gitato.net">BeatSurfer</a></li>
+        <li><a href="https://frequencypilot.gitato.net">Frequency Pilot</a></li>
+        <li><a href="https://addson.gitato.net">AddSon</a></li>
+        <li><a href="https://mediestudio.gitato.net">MedieStudio</a></li>
+      </ul>
+    </noscript>
+  </main>
+
+  <footer class="foot">
+    <div>
+      <p class="gt-label" style="color:var(--gt-ink-1)">GITATO</p>
+      <p class="foot__fine">© HilsenFar · <a href="https://github.com/HilsenFar">github.com/HilsenFar</a></p>
+      <p class="foot__fine">The Rocket League tools are fan-made and not affiliated with or endorsed by Psyonix or Epic Games.
+        Sprunki characters &amp; sounds by NyankoBfLol (Scratch, CC BY-SA 2.0), fan project.</p>
+    </div>
+    <nav aria-labelledby="fl-rl"><h2 class="gt-label" id="fl-rl">Rocket League</h2><ul id="fl-rl-list"></ul></nav>
+    <nav aria-labelledby="fl-games"><h2 class="gt-label" id="fl-games">Games</h2><ul id="fl-games-list"></ul></nav>
+    <nav aria-labelledby="fl-tools"><h2 class="gt-label" id="fl-tools">Tools</h2><ul id="fl-tools-list"></ul></nav>
+  </footer>
+</div>
+
+<script>
+  // Footer lists (below the fold) and the service worker.
+  PROJECTS.forEach((p) => {
+    const li = document.createElement("li");
+    li.innerHTML = `<a href="${p.url}">${esc(p.title)}</a>`;
+    document.getElementById(`fl-${p.shelf}-list`).appendChild(li);
+  });
 
   if ("serviceWorker" in navigator && !["localhost", "127.0.0.1"].includes(location.hostname)) {
     addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
