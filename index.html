@@ -483,6 +483,7 @@
   "author": { "@type": "Person", "name": "HilsenFar", "url": "https://github.com/HilsenFar" }
 }
 </script>
+<noscript><style>.board, .filters { display: none; }</style></noscript>
 </head>
 <body data-gt="hub">
 <div class="gt-vignette"></div>
@@ -540,42 +541,8 @@
       <span class="filters__count gt-serial" id="filters-count" aria-live="polite"></span>
     </div>
 
-    <div id="projects">
-      <section class="shelf" id="rl" aria-labelledby="rl-h" data-shelf="rl">
-        <div class="shelf__head">
-          <span class="gt-serial">01</span>
-          <h2 class="gt-h2" id="rl-h">Rocket League</h2>
-          <span class="shelf__rule" aria-hidden="true"></span>
-        </div>
-        <p class="shelf__blurb">Free tools for PC players. The tracker and the overlay read the game's official Stats API and never touch its memory, so they run with Easy Anti-Cheat on. Roll picks your next training pack.</p>
-        <div class="grid" data-grid="rl"></div>
-      </section>
-
-      <section class="shelf" id="games" aria-labelledby="games-h" data-shelf="games">
-        <div class="shelf__head">
-          <span class="gt-serial">02</span>
-          <h2 class="gt-h2" id="games-h">Games</h2>
-          <span class="shelf__rule" aria-hidden="true"></span>
-        </div>
-        <p class="shelf__blurb">Four of them run in a browser tab with nothing to install, and they work on a phone as well. Frequency Pilot is a Windows download.</p>
-        <div class="grid" data-grid="games"></div>
-      </section>
-
-      <section class="shelf" id="tools" aria-labelledby="tools-h" data-shelf="tools">
-        <div class="shelf__head">
-          <span class="gt-serial">03</span>
-          <h2 class="gt-h2" id="tools-h">Tools</h2>
-          <span class="shelf__rule" aria-hidden="true"></span>
-        </div>
-        <p class="shelf__blurb">Small apps that do one job each, on your own machine.</p>
-        <div class="grid" data-grid="tools"></div>
-      </section>
-    </div>
-
 <script>
-  /* Runs right after the markup it fills (23/9): at the end of <body> a slow
-     connection let Chrome paint empty shelves first, and the cards arriving
-     pushed the page down. The footer lists and the service worker are below. */
+  /* The data and the card template, before the shelves that use them (23/9). */
   // ── The list. Add a project here; the shelves, counters, board, filters and
   //    footer all follow from it. ──────────────────────────────────────────
   //   shelf  rl | games | tools          size  feature | half | (third)
@@ -739,10 +706,55 @@
     return a;
   }
 
-  PROJECTS.forEach((p, i) => {
-    document.querySelector(`[data-grid="${p.shelf}"]`).appendChild(card(p, i));
-  });
+  // Each shelf is filled by a one-line script right after its own grid, so a
+  // slow connection never paints an empty shelf that the one above then pushes
+  // down (23/9: CLS 0.10 at 1920x1080 when all three waited for one script).
+  // The index stays the project's place in the list: badge number, and eager
+  // loading for the first three covers.
+  function fillShelf(shelf) {
+    const grid = document.querySelector(`[data-grid="${shelf}"]`);
+    PROJECTS.forEach((p, i) => { if (p.shelf === shelf) grid.appendChild(card(p, i)); });
+  }
+</script>
 
+    <div id="projects">
+      <section class="shelf" id="rl" aria-labelledby="rl-h" data-shelf="rl">
+        <div class="shelf__head">
+          <span class="gt-serial">01</span>
+          <h2 class="gt-h2" id="rl-h">Rocket League</h2>
+          <span class="shelf__rule" aria-hidden="true"></span>
+        </div>
+        <p class="shelf__blurb">Free tools for PC players. The tracker and the overlay read the game's official Stats API and never touch its memory, so they run with Easy Anti-Cheat on. Roll picks your next training pack.</p>
+        <div class="grid" data-grid="rl"></div>
+        <script>fillShelf("rl")</script>
+      </section>
+
+      <section class="shelf" id="games" aria-labelledby="games-h" data-shelf="games">
+        <div class="shelf__head">
+          <span class="gt-serial">02</span>
+          <h2 class="gt-h2" id="games-h">Games</h2>
+          <span class="shelf__rule" aria-hidden="true"></span>
+        </div>
+        <p class="shelf__blurb">Four of them run in a browser tab with nothing to install, and they work on a phone as well. Frequency Pilot is a Windows download.</p>
+        <div class="grid" data-grid="games"></div>
+        <script>fillShelf("games")</script>
+      </section>
+
+      <section class="shelf" id="tools" aria-labelledby="tools-h" data-shelf="tools">
+        <div class="shelf__head">
+          <span class="gt-serial">03</span>
+          <h2 class="gt-h2" id="tools-h">Tools</h2>
+          <span class="shelf__rule" aria-hidden="true"></span>
+        </div>
+        <p class="shelf__blurb">Small apps that do one job each, on your own machine.</p>
+        <div class="grid" data-grid="tools"></div>
+        <script>fillShelf("tools")</script>
+      </section>
+    </div>
+
+<script>
+  /* After the last shelf (23/9): hero counters, filters and the board. The
+     footer lists and the service worker are in the script at the end. */
   // The hero counters are read from the list itself, so they can never be wrong.
   const count = (r) => PROJECTS.filter((p) => p.runs.includes(r)).length;
   document.getElementById("f-total").textContent = two(PROJECTS.length);
@@ -829,7 +841,7 @@
     const timer = setTimeout(() => ctl.abort(), 5000);
     try {
       const r = await fetch(`https://api.github.com/${path}`, { signal: ctl.signal, headers: { Accept: "application/vnd.github+json" } });
-      if (!r.ok) throw new Error(r.status);
+      if (!r.ok) throw Object.assign(new Error(String(r.status)), { status: r.status });
       return await r.json();
     } finally { clearTimeout(timer); }
   }
@@ -851,7 +863,10 @@
   paint(cached || BAKED, Boolean(cached));
   if (!cached && !recentlyFailed()) {
     refresh().then((d) => { writeCache(d); paint(d, true); })
-      .catch(() => { try { localStorage.setItem(FAIL_KEY, String(Date.now())); } catch {} });
+      .catch((e) => {
+        // Only GitHub's own refusals (rate limit) are worth waiting out.
+        if (e && (e.status === 403 || e.status === 429)) { try { localStorage.setItem(FAIL_KEY, String(Date.now())); } catch {} }
+      });
   }
 
 </script>
