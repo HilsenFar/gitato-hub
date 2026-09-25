@@ -1,6 +1,6 @@
 // GITATO hub service worker — tiny site, network first with cache fallback.
 // Bump VERSION when the site changes.
-const VERSION = 'gitato-v23';
+const VERSION = 'gitato-v24';
 
 // The shell only. Covers are NOT precached any more: v19 pulled all ten PNG
 // covers (5 MB) into every first visitor's cache before they had looked at
